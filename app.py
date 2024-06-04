@@ -29,7 +29,10 @@ logging.basicConfig(format="\n%(asctime)s\n%(message)s", level=logging.INFO, for
 def save_kg_json():
 
 	# save kaggle.json
-	kaggle_json = {"username":"zluckyhou","key":"ea20fdbc949a162f777c05f8e64b91fc"}
+	kaggle_json = {
+	"username":st.secrets["kaggle_username"],
+	"key":st.secrets["kaggle_api_key"]
+	}
 
 	kg_json_dir = os.path.expanduser('~/.kaggle')
 
@@ -163,7 +166,7 @@ if youtube_url:
 	notebook_data = os.listdir(kg_notebook_input_data_dir)
 
 	st.markdown("---")
-	st.markdown(f"Notebook data: {notebook}")
+	st.markdown(f"Notebook data: {notebook_data}")
 
 	# notebook_name = "zluckyhou/audio-transcript-forapi"
 	# kg_notebook_dir = './kg_notebook/'
