@@ -65,7 +65,7 @@ def pull_and_run_notebook(notebook,kg_notebook_dir):
 
 def check_kernel_status(notebook, interval=5):
 	with notebook_running_spinner_placeholder:
-		with st.spinner(f"Transcript job status: {st.session_state.notebook_status}")
+		with st.spinner(f"Transcript job status: {st.session_state.notebook_status}"):
 			# 无限循环，直到状态变为"complete"
 			while True:
 				result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
