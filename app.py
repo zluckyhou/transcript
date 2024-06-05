@@ -64,24 +64,27 @@ def pull_and_run_notebook(notebook,kg_notebook_dir):
 
 
 def check_kernel_status(notebook, interval=5):
-	# 无限循环，直到状态变为"complete"
-	while True:
-		result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
-		stdout = result.stdout
-		# 提取状态值
-		status = re.findall(r'status "(\w+)"',stdout)[0]
-		print(f"The current status is: {status}")
-		
-		# 检查状态是否为"complete"
-		if status == "complete":
-			print("The notebook has finished running.")
-			return status
-		elif status == 'error':
-			print("Something wrong, please check the notebook status.")
-			return status
-		else:
-			print("The notebook is still running. Checking again in 5 seconds...")
-			time.sleep(interval)  # 等待5秒
+	with notebook_running_spinner_placeholder:
+		with st.spinner(f"Transcript job status: {st.session_state.notebook_status}")
+			# 无限循环，直到状态变为"complete"
+			while True:
+				result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
+				stdout = result.stdout
+				# 提取状态值
+				status = re.findall(r'status "(\w+)"',stdout)[0]
+				st.session_state.notebook_status = status
+				logging.info(f"The current status is: {status}")
+				
+				# 检查状态是否为"complete"
+				if status == "complete":
+					logging.info("The notebook has finished running.")
+					break
+				elif status == 'error':
+					logging.info("Something wrong, please check the notebook status.")
+					break
+				else:
+					logging.info("The notebook is still running. Checking again in 5 seconds...")
+					time.sleep(interval)  # 等待5秒
 
 def save_output(notebook,kg_notebook_output_dir):
 	
@@ -143,37 +146,59 @@ def update_youtu_url(url,kg_notebook_input_data_dir):
 	with open(youtube_url_file_path,'w') as f:
 		f.write(url)
 
+if "notebook_status" not in st.session_state:
+	st.session_state.notebook_status = 'preparing' 
 
 
 # App title
-st.set_page_config(page_title="StoryTime",page_icon=":parrot:")
+st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
 
 
-st.title("Transcript Audio")
+st.title("Whisper FLow")
+st.markdown(" The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.")
 
 
 save_kg_json()
 
 youtube_url = st.text_input("Youtube video url",placeholder="Paste your youtube video url here.")
 
-if youtube_url:
-	dataset = 'zluckyhou/transcript-audio'
-	# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
-	kg_notebook_input_data_dir = './kg_notebook_input_data'
+transcript_button = st.button(label="Transcript",type="primary")
 
-	update_data(dataset,youtube_url,kg_notebook_input_data_dir)
+if transcript_button:
+	if not youtube_url:
+		st.warning("Please input your youtube video url",icon=":material/warning:")
+	elif youtube_url:
+		dataset = 'zluckyhou/transcript-audio'
+		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
+		kg_notebook_input_data_dir = './kg_notebook_input_data'
 
-	notebook_data = os.listdir(kg_notebook_input_data_dir)
+		update_data(dataset,youtube_url,kg_notebook_input_data_dir)
 
-	st.markdown("---")
-	st.markdown(f"Notebook data: {notebook_data}")
+		notebook_data = os.listdir(kg_notebook_input_data_dir)
 
-	# notebook_name = "zluckyhou/audio-transcript-forapi"
-	# kg_notebook_dir = './kg_notebook/'
-	# kg_notebook_output_dir = './kg_notebook_output'
+		st.markdown("---")
+		# st.markdown(f"Notebook data: {notebook_data}")
 
-	# # run kaggle
-	# kg_notebook_run(notebook,kg_notebook_dir,kg_notebook_output_dir)
+		notebook_name = "zluckyhou/audio-transcript-forapi"
+		kg_notebook_dir = './kg_notebook/'
+		kg_notebook_output_dir = './kg_notebook_output'
+
+		notebook_running_spinner_placeholder = st.empty()
+		# run kaggle
+		kg_notebook_run(notebook,kg_notebook_dir,kg_notebook_output_dir)
+
+		# display result if notebook running complete
+		if st.session_state.notebook_status == 'complete':
+			output_files = os.listdir(kg_notebook_output_dir)
+			videos = [file for file in output_files if mimetypes.guess_type(file)[0].startswith('video')]
+			video_file = videos[0] if videos else ''
+			srt_file = [file for file in output_files if file.endswith('.srt')]
+			txt_file = [file for file in output_files if file.endswith('.txt')]
+			st.video(video_file,subtitles=srt_file)
+			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
+		if st.session_state.notebook_status == 'error':
+			st.error("Opps,something went wrong!",icon="🔥")
+	
 
 
 
