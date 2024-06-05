@@ -308,6 +308,9 @@ if transcript_button:
 	elif youtube_url:
 		logging.info(f"youtube url:{youtube_url}")
 
+		notebook_pull_spinner_placeholder = st.empty()
+		notebook_running_spinner_placeholder = st.empty()
+		notebook_save_output_spinner_placeholder = st.empty()
 		######### use youtube-download to download youtube video
 		# dataset = 'zluckyhou/transcript-audio'
 		dataset_url = 'zluckyhou/youtube-url'
@@ -339,9 +342,7 @@ if transcript_button:
 		kg_notebook_dir = 'kg_notebook/'
 		kg_notebook_output_dir = 'kg_notebook_output'
 
-		notebook_pull_spinner_placeholder = st.empty()
-		notebook_running_spinner_placeholder = st.empty()
-		notebook_save_output_spinner_placeholder = st.empty()
+
 		# run kaggle
 		kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
 
