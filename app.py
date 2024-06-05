@@ -19,6 +19,8 @@ from openai import OpenAI
 import streamlit_extras
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.row import row
+from pytube import YouTube
+
 
 
 # Configure logger
@@ -52,59 +54,73 @@ def set_notebook_dir(kg_notebook_dir):
 	mkdir_kg_notebook = subprocess.run(["mkdir","-p",kg_notebook_dir],check=True)
 
 def pull_and_run_notebook(notebook,kg_notebook_dir):
-	# pull notebook code and metadata
-	pull = subprocess.run(["kaggle","kernels","pull",notebook,"-p",kg_notebook_dir,"-m"],check=True)
-	# check notebook metadata	 
-	with open(os.path.join(kg_notebook_dir,'kernel-metadata.json')) as f:
-		kg_metadata = json.load(f)
-	
-	# push notebook
-	kg_push = subprocess.run(["kaggle", "kernels", "push", "-p", kg_notebook_dir], check=True)
-	return kg_metadata
+	with notebook_pull_spinner_placeholder:
+		with st.spinner("Initializing WhisperFlow's advanced AI transcription engine."):
+			# pull notebook code and metadata
+			pull = subprocess.run(["kaggle","kernels","pull",notebook,"-p",kg_notebook_dir,"-m"],check=True)
+			# check notebook metadata	 
+			with open(os.path.join(kg_notebook_dir,'kernel-metadata.json')) as f:
+				kg_metadata = json.load(f)
+			
+			# push notebook
+			kg_push = subprocess.run(["kaggle", "kernels", "push", "-p", kg_notebook_dir], check=True)
+			return kg_metadata
 
 
 def check_kernel_status(notebook, interval=5):
+	# 预估总时长
+	estimate_time = 237 + st.session_state.video_length / 25
+	start_time = time.time()
 	with notebook_running_spinner_placeholder:
-		with st.spinner(f"Transcript job status: {st.session_state.notebook_status}"):
-			# 无限循环，直到状态变为"complete"
-			while True:
-				result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
-				stdout = result.stdout
-				# 提取状态值
-				status = re.findall(r'status "(\w+)"',stdout)[0]
-				st.session_state.notebook_status = status
-				logging.info(f"The current status is: {status}")
-				
-				# 检查状态是否为"complete"
-				if status == "complete":
-					logging.info("The notebook has finished running.")
-					break
-				elif status == 'error':
-					logging.info("Something wrong, please check the notebook status.")
-					break
-				else:
-					logging.info("The notebook is still running. Checking again in 5 seconds...")
-					time.sleep(interval)  # 等待5秒
+		# 初始化进度条
+		progress_text = "WhisperFlow is now actively transcribing your audio/video."
+		my_bar = st.progress(0, text=progress_text)
+		# 无限循环，直到状态变为"complete"
+		while True:
+			result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
+			stdout = result.stdout
+			# 提取状态值
+			status = re.findall(r'status "(\w+)"',stdout)[0]
+			st.session_state.notebook_status = status
+			logging.info(f"The current status is: {status}")
+
+			elapsed_time = time.time() - start_time  # 计算已经过去的时间
+			progress = min(elapsed_time / estimate_time, 0.99)  # 计算进度百分比，最大为0.99
+			my_bar.progress(int(progress * 100), text=progress_text)
+			
+			# 检查状态是否为"complete"
+			if status == "complete":
+				logging.info("The notebook has finished running.")
+				my_bar.progress(100, text="Transcription completed！")
+				break
+			elif status == 'error':
+				logging.info("Something wrong, please check the notebook status.")
+				break
+			else:
+				logging.info("The notebook is still running. Checking again in 5 seconds...")
+				time.sleep(interval)  # 等待5秒
 
 def save_output(notebook,kg_notebook_output_dir):
-	
-	# remove kg_notebook dir if exists
-	kg_rm_output = subprocess.run(["rm","-rf",kg_notebook_output_dir],check=True)
-	# create output dir
-	kg_mkdir_output = subprocess.run(["mkdir", "-p", kg_notebook_output_dir], check=True)
-	# save output
-	kg_save_output = subprocess.run(["kaggle", "kernels", "output", notebook, "-p", kg_notebook_output_dir], check=True)
+	with notebook_save_output_spinner_placeholder:
+		with st.spinner("Your transcription is almost ready! "):
+			# remove kg_notebook dir if exists
+			kg_rm_output = subprocess.run(["rm","-rf",kg_notebook_output_dir],check=True)
+			# create output dir
+			kg_mkdir_output = subprocess.run(["mkdir", "-p", kg_notebook_output_dir], check=True)
+			# save output
+			kg_save_output = subprocess.run(["kaggle", "kernels", "output", notebook, "-p", kg_notebook_output_dir], check=True)
 
 def kg_notebook_run(notebook,kg_notebook_dir,kg_notebook_output_dir):	
 	set_notebook_dir(kg_notebook_dir)
 	
 	pull_and_run_notebook(notebook,kg_notebook_dir)
-	status = check_kernel_status(notebook, interval=5)
-	if status == "complete":
+	check_kernel_status(notebook, interval=5)
+	if st.session_state.notebook_status == "complete":
 		save_output(notebook,kg_notebook_output_dir)
-		print('output file saved success!')
+		st.session_state.notebook_output = True
+		logging.info('output file saved success!')
 	else:
-		print("opps! something wrong")
+		logging.error("opps! something wrong")
 	
 def check_dataset_status(dataset):
 	while True:
@@ -119,7 +135,7 @@ def check_dataset_status(dataset):
 
 def update_data(dataset,url,kg_notebook_input_data_dir):
 	with notebook_data_spinner_placeholder:
-		with st.spinner("Your transcription request is being processed. This may take a few moments, depending on the length of your audio/video."):
+		with st.spinner("Preparing your audio/video data for transcription."):
 			# remove if exists
 			rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
 			
@@ -130,14 +146,16 @@ def update_data(dataset,url,kg_notebook_input_data_dir):
 			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
 
 			# update youtube url
-			update_youtu_url(url,kg_notebook_input_data_dir)
-
+			# update_youtu_url(url,kg_notebook_input_data_dir)
+			# download youtube url
+			youtube_video,video_length = youtube_download(url, kg_notebook_input_data_dir)
+			st.session_state.youtube_video = youtube_video
+			st.session_state.video_length = video_length
 			# create a new dataset version
 			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
 			
 			# check dataset status
 			check_dataset_status(dataset)
-
 
 
 def update_youtu_url(url,kg_notebook_input_data_dir):
@@ -148,8 +166,40 @@ def update_youtu_url(url,kg_notebook_input_data_dir):
 	with open(youtube_url_file_path,'w') as f:
 		f.write(url)
 
+
+def progress_function(stream, chunk, bytes_remaining):
+	total_size = stream.filesize
+	bytes_downloaded = total_size - bytes_remaining
+	percentage_of_completion = bytes_downloaded / total_size * 100
+	print(f"Downloaded {percentage_of_completion}%")
+
+def youtube_download(video_url, download_path):
+	logging.info("Downloading video...")
+	yt = YouTube(video_url, on_progress_callback=progress_function)
+
+	# 获取视频标题
+	video_title = yt.title
+	video_length = yt.length
+	print(f"Downloading video: {video_title}")
+
+	stream = yt.streams.get_highest_resolution()
+	# 获取视频流的默认文件名
+	default_filename = stream.default_filename.replace(' ', '_')
+
+	# 下载视频到指定目录
+	stream.download(output_path=download_path, filename=default_filename)
+
+	return os.path.join(download_path, default_filename),video_length
+
+
 if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
+if "notebook_output" not in st.session_state:
+	st.session_state.notebook_output = ''
+if "youtube_video" not in st.session_state:
+	st.session_state.youtube_video = ''
+if "video_length" not in st.session_state:
+	st.session_state.video_length = None
 
 
 # App title
@@ -172,12 +222,10 @@ if transcript_button:
 	elif youtube_url:
 		dataset = 'zluckyhou/transcript-audio'
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
-		kg_notebook_input_data_dir = './kg_notebook_input_data'
+		kg_notebook_input_data_dir = './kg_notebook_input_data'		
 
 		notebook_data_spinner_placeholder = st.empty()
 		update_data(dataset,youtube_url,kg_notebook_input_data_dir)
-
-		notebook_data = os.listdir(kg_notebook_input_data_dir)
 
 		st.markdown("---")
 		# st.markdown(f"Notebook data: {notebook_data}")
@@ -186,12 +234,15 @@ if transcript_button:
 		kg_notebook_dir = './kg_notebook/'
 		kg_notebook_output_dir = './kg_notebook_output'
 
+		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
+		notebook_save_output_spinner_placeholder = st.empty()
 		# run kaggle
 		kg_notebook_run(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
 
 		# display result if notebook running complete
-		if st.session_state.notebook_status == 'complete':
+		if st.session_state.notebook_output:
+			st.markdown("Transcription completed successfully!")
 			output_files = os.listdir(kg_notebook_output_dir)
 			videos = [file for file in output_files if mimetypes.guess_type(file)[0].startswith('video')]
 			video_file = videos[0] if videos else ''
@@ -199,7 +250,7 @@ if transcript_button:
 			txt_file = [file for file in output_files if file.endswith('.txt')]
 			st.video(video_file,subtitles=srt_file)
 			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
-		if st.session_state.notebook_status == 'error':
+		else:
 			st.error("Opps,something went wrong!",icon="🔥")
 	
 
