@@ -317,23 +317,25 @@ def update_youtu_url(url,kg_notebook_input_data_dir):
 		f.write(url)
 
 def update_kg_youtube_url(dataset,url,kg_notebook_input_data_dir):
-    # remove if exists
-    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
-    
-    # make dataset dir
-    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
-    
-    # download metadata for an existing dataset
-    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+	with notebook_update_youtube_url_spinner_placeholder:
+		with st.spinner("Processing..."):
+		    # remove if exists
+		    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+		    
+		    # make dataset dir
+		    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+		    
+		    # download metadata for an existing dataset
+		    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
 
-    # update youtube url
-    update_youtu_url(url,kg_notebook_input_data_dir)
+		    # update youtube url
+		    update_youtu_url(url,kg_notebook_input_data_dir)
 
-    # create a new dataset version
-    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
-    
-    # check dataset status
-    check_dataset_status(dataset)
+		    # create a new dataset version
+		    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+		    
+		    # check dataset status
+		    check_dataset_status(dataset)
 
 
 
@@ -432,7 +434,7 @@ def wrap_transcript_audio(audio_file):
 		txt_file = [file for file in output_files if file.endswith('.txt')][0]
 		logger.info(f"srt file: {srt_file}")
 		with video_placeholder:
-			st.video(youtube_video,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
+			st.video(audio_file,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
 		
 		srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
 		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
@@ -537,6 +539,7 @@ if transcript_button:
 		logger.info(f"youtube url:{youtube_url}")
 		
 		video_placeholder = st.empty()
+		notebook_update_youtube_url_spinner_placeholder = st.empty()
 		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
