@@ -38,6 +38,86 @@ console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
 
 
+
+# check if image
+def is_image(file_path):
+	try:
+		Image.open(file_path)
+		return True
+	except IOError:
+		return False
+
+def get_supabase_client():
+	url = st.secrets['supabase_url']
+	key = st.secrets['supabase_key']
+	supabase = create_client(url, key)
+	return supabase
+
+# insert data to database
+def supabase_insert_message(table,message):
+    supabase = get_supabase_client()
+    data, count = supabase.table(table).insert(message).execute()
+
+def supabase_insert_user(name,user_name,profile,picture,oauth_token,email):
+    supabase = get_supabase_client()
+    data, count = supabase.table('story_users').insert({"name":name,"user_name":user_name,"profile":profile,"picture":picture,"oauth_token":oauth_token,"email":email}).execute()
+
+
+def supabase_fetch_user(user_name):
+    supabase = get_supabase_client()
+    data,count = supabase.table('story_users').select("*").eq('user_name',user_name).execute()
+    return data
+
+def update_user_by_email(email,k,v):
+    supabase = get_supabase_client()
+    data, count = supabase.table('story_users').update({k: v}).eq('email', email).execute()
+    return data
+
+def supabase_fetch_user_by_email(email):
+    supabase = get_supabase_client()
+    data,count = supabase.table('story_users').select("*").eq('email',email).execute()
+    return data
+
+def supabase_fetch_kofi_by_email(email):
+    supabase = get_supabase_client()
+    data,count = supabase.table('kofi_donation').select("*").eq('email',email).execute()
+    return data
+
+# check if file already exists
+def check_supabase_file_exists(file_path,bucket_name):
+	supabase = get_supabase_client()
+	supabase_storage_ls = supabase.storage.from_(bucket_name).list()
+	
+	if any(file["name"] == os.path.basename(file_path) for file in supabase_storage_ls):
+		return True
+	else:
+		return False
+
+
+# user unicodedata to remove characters that are not ASCII
+def remove_non_ascii(text):
+    return ''.join(c for c in text if ord(c) < 128)
+
+def upload_file_to_supabase_storage(file_path):
+	base_name = remove_non_ascii(os.path.basename(file_path))
+	path_on_supastorage = os.path.splitext(base_name)[0] + '_' + str(round(time.time())//6000)  + os.path.splitext(base_name)[1]
+	mime_type, _ = mimetypes.guess_type(base_name)
+	
+	supabase = get_supabase_client()
+	bucket_name = st.secrets["bucket_name"]
+
+	try:
+		if check_supabase_file_exists(path_on_supastorage,bucket_name):
+			public_url = supabase.storage.from_(bucket_name).get_public_url(path_on_supastorage)
+		else:
+			supabase.storage.from_(bucket_name).upload(file=file_path, path=path_on_supastorage, file_options={"content-type": mime_type})
+			public_url = supabase.storage.from_(bucket_name).get_public_url(path_on_supastorage)
+	except StorageException as e:
+		print("StorageException:", e)
+		raise
+	return public_url
+
+
 def save_kg_json():
 
 	# save kaggle.json
@@ -292,18 +372,67 @@ if "youtube_notebook_status" not in st.session_state:
 	st.session_state.youtube_notebook_status = ''
 if "youtube_notebook_output" not in st.session_state:
 	st.session_state.youtube_notebook_output = ''
-
 if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
 if "video_length" not in st.session_state:
 	st.session_state.video_length = None
+	
+if 'user_info' not in st.session_state:
+	st.session_state.user_info = {}
 
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
 
 
-st.title("Whisper FLow")
+# sidebar
+with st.sidebar:
+	st.title("🦊 StoryTime")
+	about = """
+	Welcome to StoryTime, the magical app that quickly creates captivating and heartwarming bedtime stories for children and adults alike.
+	"""
+	st.markdown(about)
+
+	st.markdown("[![ko-fi](https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/githubbutton_sm_1.svg)](https://ko-fi.com/J3J3YMOKZ)")
+	
+	from auth0_component import login_button
+	
+	clientId = st.secrets["auth0_client_id"]
+	domain = st.secrets["auth0_domain"]
+
+	
+	user_info = st.session_state.get('user_info', {})
+	if user_info:
+		logger.info(f"User info: {user_info}")
+		st.markdown(f"Welcome, {user_info['name']}")
+		name = user_info['name']
+		user_name = user_info['nickname']
+		profile = ''
+		picture = user_info['picture']
+		oauth_token = user_info['token']
+		email = user_info['email']
+		# check if user exists
+		user_data = supabase_fetch_user_by_email(email)
+		if not user_data[1]:
+			supabase_insert_user(name,user_name,profile,picture,oauth_token,email)
+		if st.button('Logout'):
+			st.session_state.user_info = None  # 清除 session 中的用户信息
+			st.rerun()  # 重新运行应用以更新状态
+	else:
+		user_info = login_button(clientId, domain=domain)
+		if user_info:
+			st.session_state.user_info = user_info  # 保存用户信息到 session
+			st.rerun()  # 重新运行应用以更新状态
+	
+
+st.sidebar.divider()
+st.sidebar.markdown('If you have any questions or need assistance, please feel free to contact me via [email](mailto:hou0922@gmail.com)')
+
+
+
+
+
+st.title("Whisper Flow")
 st.markdown(" The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.")
 
 
@@ -322,6 +451,7 @@ if transcript_button:
 	elif youtube_url:
 		logger.info(f"youtube url:{youtube_url}")
 		
+		video_placeholder = st.empty()
 		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
@@ -342,7 +472,6 @@ if transcript_button:
 		video_length = get_video_duration(youtube_video)
 		logger.info(f"youtube video: {youtube_video}")
 
-		video_placeholder = st.empty()
 		with video_placeholder:
 			st.video(youtube_video)
 
@@ -377,7 +506,20 @@ if transcript_button:
 			logger.info(f"srt file: {srt_file}")
 			with video_placeholder:
 				st.video(youtube_video,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
-			st.markdown(f"Download [video subtitle]({os.path.join(kg_notebook_output_dir,srt_file)}) or [Transcript in plain text]({os.path.join(kg_notebook_output_dir,txt_file)})")
+			
+			srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
+			txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
+
+			st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
 		else:
 			st.error("Opps,something went wrong!",icon="🔥")
+
+		msg = {
+		"trans_type":"youtube_url",
+		"url":youtube_url,
+		"srt":srt_file_url,
+		"txt":txt_file_url
+		}
+
+		supabase_insert_message(table='transcript_messages',message=msg)
 
