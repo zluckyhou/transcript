@@ -401,9 +401,6 @@ def wrap_download_youtube(youtube_url):
 	video_length = get_video_duration(youtube_video)
 	logger.info(f"youtube video: {youtube_video}")
 
-	with video_placeholder:
-		st.video(youtube_video)
-
 	st.session_state.youtube_video = youtube_video
 	st.session_state.video_length = video_length
 
@@ -428,18 +425,15 @@ def wrap_transcript_audio(audio_file):
 
 	# display result if notebook running complete
 	if st.session_state.notebook_output:
-		st.markdown("Transcription completed successfully!")
 		output_files = os.listdir(kg_notebook_output_dir)
 		srt_file = [file for file in output_files if file.endswith('.srt')][0]
 		txt_file = [file for file in output_files if file.endswith('.txt')][0]
+		st.session_state.srt_file = os.path.join(kg_notebook_output_dir,srt_file)
 		logger.info(f"srt file: {srt_file}")
-		with video_placeholder:
-			st.video(audio_file,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
-		
 		srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
 		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
-
-		st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
+		st.session_state.srt_file_url = srt_file_url
+		st.session_state.txt_file_url = txt_file_url
 	else:
 		st.error("Opps,something went wrong!",icon="🔥")
 
@@ -456,8 +450,17 @@ if "youtube_notebook_output" not in st.session_state:
 	st.session_state.youtube_notebook_output = ''
 if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
+if "audio_file" not in st.session_state:
+	st.session_state.audio_file = ''
 if "video_length" not in st.session_state:
 	st.session_state.video_length = None
+if "srt_file_url" not in st.session_state:
+	st.session_state.srt_file_url = ''
+if "txt_file_url" not in st.session_state:
+	st.session_state.txt_file_url = ''
+if "srt_file" not in st.session_state:
+	st.session_state.srt_file = ''
+
 
 if 'user_info' not in st.session_state:
 	st.session_state.user_info = {}
@@ -530,6 +533,9 @@ youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube v
 transcript_button = st.button(label="Transcript",type="primary")
 
 if transcript_button:
+
+	st.session_state.youtube_video = ''
+	st.session_state.srt_file = ''
 	
 	st.markdown("---")
 
@@ -571,8 +577,8 @@ if transcript_button:
 		msg = {
 		"trans_type":trans_type,
 		"url":youtube_url,
-		"srt":srt_file_url,
-		"txt":txt_file_url,
+		"srt":st.session_state.srt_file_url,
+		"txt":st.session_state.txt_file_url,
 		"user_name":st.session_state.user_info.get('name',''),
 		"email":st.session_state.user_info.get('email',''),
 		"status":st.session_state.status,
@@ -580,3 +586,15 @@ if transcript_button:
 		}
 
 		supabase_insert_message(table='transcript_messages',message=msg)
+
+if st.session_state.youtube_video:
+	with video_placeholder:
+		st.video(st.session_state.youtube_video)
+if st.session_state.srt_file:
+	with video_placeholder:
+		st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
+		st.markdown("Transcription completed successfully!")
+		st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
+
+
+
