@@ -162,7 +162,7 @@ st.markdown(" The lightning-fast, AI-powered audio and video transcription solut
 
 save_kg_json()
 
-youtube_url = st.text_input("Youtube video url",placeholder="Paste your youtube video url here.")
+youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
 
 transcript_button = st.button(label="Transcript",type="primary")
 
