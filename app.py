@@ -376,7 +376,7 @@ if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
 if "video_length" not in st.session_state:
 	st.session_state.video_length = None
-	
+
 if 'user_info' not in st.session_state:
 	st.session_state.user_info = {}
 
@@ -387,9 +387,9 @@ st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
 
 # sidebar
 with st.sidebar:
-	st.title("🦊 StoryTime")
+	st.title("🦜 WhisperFlow")
 	about = """
-	Welcome to StoryTime, the magical app that quickly creates captivating and heartwarming bedtime stories for children and adults alike.
+	The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.
 	"""
 	st.markdown(about)
 
