@@ -143,8 +143,8 @@ def update_data(dataset,url,kg_notebook_input_data_dir):
 			dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
 			
 			# download metadata for an existing dataset
-			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
-
+			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True,capture_output=True,text=True)
+			logging.info(f"doload dataset metadata log: {kg_dataset}")
 			# update youtube url
 			# update_youtu_url(url,kg_notebook_input_data_dir)
 			# download youtube url
