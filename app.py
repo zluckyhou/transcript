@@ -175,22 +175,24 @@ def progress_function(stream, chunk, bytes_remaining):
 
 def youtube_download(video_url, download_path):
 	logging.info("Downloading video...")
-	yt = YouTube(video_url, on_progress_callback=progress_function)
+	try:
+		yt = YouTube(video_url, on_progress_callback=progress_function)
 
-	# 获取视频标题
-	video_title = yt.title
-	video_length = yt.length
-	print(f"Downloading video: {video_title}")
+		# 获取视频标题
+		video_title = yt.title
+		video_length = yt.length
+		print(f"Downloading video: {video_title}")
 
-	stream = yt.streams.get_highest_resolution()
-	# 获取视频流的默认文件名
-	default_filename = stream.default_filename.replace(' ', '_')
+		stream = yt.streams.get_highest_resolution()
+		# 获取视频流的默认文件名
+		default_filename = stream.default_filename.replace(' ', '_')
 
-	# 下载视频到指定目录
-	stream.download(output_path=download_path, filename=default_filename)
+		# 下载视频到指定目录
+		stream.download(output_path=download_path, filename=default_filename)
 
-	return os.path.join(download_path, default_filename),video_length
-
+		return os.path.join(download_path, default_filename),video_length
+	except Exception as e:
+		logging.error(f"youtube download error: {e}")
 
 if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
