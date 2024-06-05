@@ -60,22 +60,22 @@ def supabase_insert_message(table,message):
 
 def supabase_insert_user(name,user_name,profile,picture,oauth_token,email):
     supabase = get_supabase_client()
-    data, count = supabase.table('story_users').insert({"name":name,"user_name":user_name,"profile":profile,"picture":picture,"oauth_token":oauth_token,"email":email}).execute()
+    data, count = supabase.table('transcript_users').insert({"name":name,"user_name":user_name,"profile":profile,"picture":picture,"oauth_token":oauth_token,"email":email}).execute()
 
 
 def supabase_fetch_user(user_name):
     supabase = get_supabase_client()
-    data,count = supabase.table('story_users').select("*").eq('user_name',user_name).execute()
+    data,count = supabase.table('transcript_users').select("*").eq('user_name',user_name).execute()
     return data
 
 def update_user_by_email(email,k,v):
     supabase = get_supabase_client()
-    data, count = supabase.table('story_users').update({k: v}).eq('email', email).execute()
+    data, count = supabase.table('transcript_users').update({k: v}).eq('email', email).execute()
     return data
 
 def supabase_fetch_user_by_email(email):
     supabase = get_supabase_client()
-    data,count = supabase.table('story_users').select("*").eq('email',email).execute()
+    data,count = supabase.table('transcript_users').select("*").eq('email',email).execute()
     return data
 
 def supabase_fetch_kofi_by_email(email):
@@ -116,6 +116,29 @@ def upload_file_to_supabase_storage(file_path):
 		print("StorageException:", e)
 		raise
 	return public_url
+
+
+def update_user_msg_pv(email):
+	user_data = supabase_fetch_user_by_email(email)
+	msg_pv = user_data[1][0]["msg_pv"] if user_data[1][0]["msg_pv"] else 0
+	msg_pv += 1
+	update_data = update_user_by_email(email,'msg_pv',msg_pv)
+	logger.debug(f"user msg_pv update: {email} ---> {msg_pv}")
+	return update_data
+
+def is_user_valid(email):
+	donation_data = supabase_fetch_kofi_by_email(email)
+	user_data = supabase_fetch_user_by_email(email)
+	msg_pv = user_data[1][0]["msg_pv"] if user_data[1][0]["msg_pv"] else 0
+
+	if email in st.secrets['user_white_list'].split(','):
+		return True
+	elif donation_data[1]:
+		return True
+	elif msg_pv < 3:
+		return True
+	else:
+		return False
 
 
 def save_kg_json():
