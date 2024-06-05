@@ -376,8 +376,8 @@ if transcript_button:
 			txt_file = [file for file in output_files if file.endswith('.txt')][0]
 			logger.info(f"srt file: {srt_file}")
 			with video_placeholder:
-				st.video(youtube_video,subtitles=srt_file)
-			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
+				st.video(youtube_video,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
+			st.markdown(f"Download [video subtitle]({os.path.join(kg_notebook_output_dir,srt_file)}) or [Transcript in plain text]({os.path.join(kg_notebook_output_dir,txt_file)})")
 		else:
 			st.error("Opps,something went wrong!",icon="🔥")
 
