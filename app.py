@@ -311,12 +311,12 @@ if transcript_button:
 		######### use youtube-download to download youtube video
 		# dataset = 'zluckyhou/transcript-audio'
 		dataset_url = 'zluckyhou/youtube-url'
-		kg_notebook_input_data_dir_youtu = './kg_notebook_input_data_url'
+		kg_notebook_input_data_dir_youtu = 'kg_notebook_input_data_url'
 		update_kg_youtube_url(dataset_url,youtube_url,kg_notebook_input_data_dir_youtu)
 		# run youtube_download to get youtube video
 		notebook_name_youtu = "zluckyhou/youtube-download"
-		kg_notebook_dir_youtu = './kg_notebook_youtu'
-		kg_notebook_output_dir_youtu = './kg_notebook_output_youtu'
+		kg_notebook_dir_youtu = 'kg_notebook_youtu'
+		kg_notebook_output_dir_youtu = 'kg_notebook_output_youtu'
 		kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
 		youtube_video = os.path.join(kg_notebook_output_dir_youtu,os.listdir(kg_notebook_output_dir_youtu)[0])
 		video_length = get_video_duration(youtube_video)
@@ -327,7 +327,7 @@ if transcript_button:
 		# use audio-transcript-forapi to transcript
 		dataset = 'zluckyhou/transcript-audio'
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
-		kg_notebook_input_data_dir = './kg_notebook_input_data'		
+		kg_notebook_input_data_dir = 'kg_notebook_input_data'		
 		notebook_data_spinner_placeholder = st.empty()
 		# move youtube video to transcript-audio dataset
 		update_transcript_audio(dataset,youtube_video,kg_notebook_input_data_dir)
@@ -336,8 +336,8 @@ if transcript_button:
 		# st.markdown(f"Notebook data: {notebook_data}")
 
 		notebook_name = "zluckyhou/audio-transcript-forapi"
-		kg_notebook_dir = './kg_notebook/'
-		kg_notebook_output_dir = './kg_notebook_output'
+		kg_notebook_dir = 'kg_notebook/'
+		kg_notebook_output_dir = 'kg_notebook_output'
 
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
