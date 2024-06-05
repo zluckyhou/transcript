@@ -118,23 +118,25 @@ def check_dataset_status(dataset):
 			time.sleep(5)
 
 def update_data(dataset,url,kg_notebook_input_data_dir):
-	# remove if exists
-	rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
-	
-	# make dataset dir
-	dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
-	
-	# download metadata for an existing dataset
-	kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+	with notebook_data_spinner_placeholder:
+		with st.spinner("Your transcription request is being processed. This may take a few moments, depending on the length of your audio/video."):
+			# remove if exists
+			rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+			
+			# make dataset dir
+			dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+			
+			# download metadata for an existing dataset
+			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
 
-	# update youtube url
-	update_youtu_url(url,kg_notebook_input_data_dir)
+			# update youtube url
+			update_youtu_url(url,kg_notebook_input_data_dir)
 
-	# create a new dataset version
-	kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
-	
-	# check dataset status
-	check_dataset_status(dataset)
+			# create a new dataset version
+			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+			
+			# check dataset status
+			check_dataset_status(dataset)
 
 
 
@@ -172,6 +174,7 @@ if transcript_button:
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
 		kg_notebook_input_data_dir = './kg_notebook_input_data'
 
+		notebook_data_spinner_placeholder = st.empty()
 		update_data(dataset,youtube_url,kg_notebook_input_data_dir)
 
 		notebook_data = os.listdir(kg_notebook_input_data_dir)
@@ -185,7 +188,7 @@ if transcript_button:
 
 		notebook_running_spinner_placeholder = st.empty()
 		# run kaggle
-		kg_notebook_run(notebook,kg_notebook_dir,kg_notebook_output_dir)
+		kg_notebook_run(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
 
 		# display result if notebook running complete
 		if st.session_state.notebook_status == 'complete':
