@@ -385,6 +385,63 @@ def get_video_duration(file_path):
         return None
 
 
+def wrap_download_youtube(youtube_url):
+	dataset_url = 'zluckyhou/youtube-url'
+	kg_notebook_input_data_dir_youtu = 'kg_notebook_input_data_url'
+	update_kg_youtube_url(dataset_url,youtube_url,kg_notebook_input_data_dir_youtu)
+	# run youtube_download to get youtube video
+	notebook_name_youtu = "zluckyhou/youtube-download"
+	kg_notebook_dir_youtu = 'kg_notebook_youtu'
+	kg_notebook_output_dir_youtu = 'kg_notebook_output_youtu'
+	kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
+	video_name = [file for file in os.listdir(kg_notebook_output_dir_youtu) if file.endswith('.mp4')][0]
+	youtube_video = os.path.join(kg_notebook_output_dir_youtu,video_name)
+	video_length = get_video_duration(youtube_video)
+	logger.info(f"youtube video: {youtube_video}")
+
+	with video_placeholder:
+		st.video(youtube_video)
+
+	st.session_state.youtube_video = youtube_video
+	st.session_state.video_length = video_length
+
+def wrap_transcript_audio(audio_file):
+	# use audio-transcript-forapi to transcript
+	dataset = 'zluckyhou/transcript-audio'
+	# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
+	kg_notebook_input_data_dir = 'kg_notebook_input_data'		
+
+	# move youtube video to transcript-audio dataset
+	update_transcript_audio(dataset,audio_file,kg_notebook_input_data_dir)
+
+	# st.markdown(f"Notebook data: {notebook_data}")
+
+	notebook_name = "zluckyhou/audio-transcript-forapi"
+	kg_notebook_dir = 'kg_notebook/'
+	kg_notebook_output_dir = 'kg_notebook_output'
+
+
+	# run kaggle
+	kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
+
+	# display result if notebook running complete
+	if st.session_state.notebook_output:
+		st.markdown("Transcription completed successfully!")
+		output_files = os.listdir(kg_notebook_output_dir)
+		srt_file = [file for file in output_files if file.endswith('.srt')][0]
+		txt_file = [file for file in output_files if file.endswith('.txt')][0]
+		logger.info(f"srt file: {srt_file}")
+		with video_placeholder:
+			st.video(youtube_video,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
+		
+		srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
+		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
+
+		st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
+	else:
+		st.error("Opps,something went wrong!",icon="🔥")
+
+
 
 
 if "notebook_status" not in st.session_state:
@@ -402,6 +459,11 @@ if "video_length" not in st.session_state:
 
 if 'user_info' not in st.session_state:
 	st.session_state.user_info = {}
+if 'status' not in st.session_state:
+	st.session_state.status = ''
+if 'quota_limit' not in st.session_state:
+	st.session_state.quota_limit = ''
+
 
 
 # App title
@@ -480,69 +542,38 @@ if transcript_button:
 		notebook_running_spinner_placeholder = st.empty()
 		notebook_save_output_spinner_placeholder = st.empty()
 
-		######### use youtube-download to download youtube video
-		# dataset = 'zluckyhou/transcript-audio'
-		dataset_url = 'zluckyhou/youtube-url'
-		kg_notebook_input_data_dir_youtu = 'kg_notebook_input_data_url'
-		update_kg_youtube_url(dataset_url,youtube_url,kg_notebook_input_data_dir_youtu)
-		# run youtube_download to get youtube video
-		notebook_name_youtu = "zluckyhou/youtube-download"
-		kg_notebook_dir_youtu = 'kg_notebook_youtu'
-		kg_notebook_output_dir_youtu = 'kg_notebook_output_youtu'
-		kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
-		video_name = [file for file in os.listdir(kg_notebook_output_dir_youtu) if file.endswith('.mp4')][0]
-		youtube_video = os.path.join(kg_notebook_output_dir_youtu,video_name)
-		video_length = get_video_duration(youtube_video)
-		logger.info(f"youtube video: {youtube_video}")
+		trans_type = 'youtube_url'
+		if st.session_state.get('user_info', {}):
+			user_name = st.session_state.user_info['name']
+			email = st.session_state.user_info['email']
+			if is_user_valid(email):
+				# use youtube-download to download youtube video
+				wrap_download_youtube(youtube_url)
+				# transcript youtube video
+				if st.session_state.youtube_video:
+					wrap_transcript_audio(st.session_state.youtube_video)
+				st.session_state.status = 'success'
+				update_data = update_user_msg_pv(email)
 
-		with video_placeholder:
-			st.video(youtube_video)
-
-		st.session_state.youtube_video = youtube_video
-		st.session_state.video_length = video_length
-
-
-		# use audio-transcript-forapi to transcript
-		dataset = 'zluckyhou/transcript-audio'
-		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
-		kg_notebook_input_data_dir = 'kg_notebook_input_data'		
-		
-		# move youtube video to transcript-audio dataset
-		update_transcript_audio(dataset,youtube_video,kg_notebook_input_data_dir)
-
-		# st.markdown(f"Notebook data: {notebook_data}")
-
-		notebook_name = "zluckyhou/audio-transcript-forapi"
-		kg_notebook_dir = 'kg_notebook/'
-		kg_notebook_output_dir = 'kg_notebook_output'
-
-
-		# run kaggle
-		kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
-
-		# display result if notebook running complete
-		if st.session_state.notebook_output:
-			st.markdown("Transcription completed successfully!")
-			output_files = os.listdir(kg_notebook_output_dir)
-			srt_file = [file for file in output_files if file.endswith('.srt')][0]
-			txt_file = [file for file in output_files if file.endswith('.txt')][0]
-			logger.info(f"srt file: {srt_file}")
-			with video_placeholder:
-				st.video(youtube_video,subtitles=os.path.join(kg_notebook_output_dir,srt_file))
-			
-			srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
-			txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
-
-			st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
+			else:
+				st.session_state.quota_limit = True
+				st.session_state.status = 'failed'
+				memo = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
+				st.warning(memo,icon=":material/energy_savings_leaf:")
 		else:
-			st.error("Opps,something went wrong!",icon="🔥")
+			memo = "Please click the 'Login' button in the sidebar to proceed."
+			st.session_state.status = 'failed'
+			st.warning(memo, icon=":material/passkey:")
 
 		msg = {
-		"trans_type":"youtube_url",
+		"trans_type":trans_type,
 		"url":youtube_url,
 		"srt":srt_file_url,
-		"txt":txt_file_url
+		"txt":txt_file_url,
+		"user_name":st.session_state.user_info.get('name',''),
+		"email":st.session_state.user_info.get('email',''),
+		"status":st.session_state.status,
+		"memo":memo
 		}
 
 		supabase_insert_message(table='transcript_messages',message=msg)
-
