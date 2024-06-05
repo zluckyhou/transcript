@@ -597,6 +597,6 @@ if st.session_state.srt_file:
 	with video_placeholder:
 		st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
 		st.markdown("Transcription completed successfully!")
-		st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
+		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
 
 
