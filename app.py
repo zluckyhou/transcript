@@ -222,6 +222,7 @@ if transcript_button:
 	if not youtube_url:
 		st.warning("Please input your youtube video url",icon=":material/warning:")
 	elif youtube_url:
+		logging.info(f"youtube url:{youtube_url}")
 		dataset = 'zluckyhou/transcript-audio'
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
 		kg_notebook_input_data_dir = './kg_notebook_input_data'		
