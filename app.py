@@ -87,50 +87,51 @@ def check_kernel_status_youtube(notebook, interval=5):
 				# 提取状态值
 				status = re.findall(r'status "(\w+)"',stdout)[0]
 				st.session_state.youtube_notebook_status = status
-				logging.info(f"The current status is: {status}")
+				logger.info(f"The current status is: {status}")
 				# 检查状态是否为"complete"
 				if status == "complete":
-					logging.info("The notebook has finished running.")
+					logger.info("The notebook has finished running.")
 					break
 				elif status == 'error':
-					logging.info("Something wrong, please check the notebook status.")
+					logger.info("Something wrong, please check the notebook status.")
 					break
 				else:
-					logging.info("The notebook is still running. Checking again in 5 seconds...")
+					logger.info("The notebook is still running. Checking again in 5 seconds...")
 					time.sleep(interval)  # 等待5秒
 
 def check_kernel_status_transcript(notebook, interval=5):
 	# 预估总时长
 	estimate_time = 237 + st.session_state.video_length / 25
-	start_time = time.time()
+	elapsed_time = 0
 	with notebook_running_spinner_placeholder:
-		# 初始化进度条
-		progress_text = "WhisperFlow is now actively transcribing your audio/video."
-		my_bar = st.progress(0, text=progress_text)
-		# 无限循环，直到状态变为"complete"
-		while True:
-			result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
-			stdout = result.stdout
-			# 提取状态值
-			status = re.findall(r'status "(\w+)"',stdout)[0]
-			st.session_state.notebook_status = status
-			logging.info(f"The current status is: {status}")
+		with st.spinner("WhisperFlow is now actively transcribing your audio/video."):
+			# 初始化进度条
+			progress_text = "Transcribe progress"
+			my_bar = st.progress(0, text=progress_text)
+			# 无限循环，直到状态变为"complete"
+			while True:
+				result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
+				stdout = result.stdout
+				# 提取状态值
+				status = re.findall(r'status "(\w+)"',stdout)[0]
+				st.session_state.notebook_status = status
+				logger.info(f"The current status is: {status}")
 
-			elapsed_time = time.time() - start_time  # 计算已经过去的时间
-			progress = min(elapsed_time / estimate_time, 0.99)  # 计算进度百分比，最大为0.99
-			my_bar.progress(int(progress * 100), text=progress_text)
-			
-			# 检查状态是否为"complete"
-			if status == "complete":
-				logging.info("The notebook has finished running.")
-				my_bar.progress(100, text="Transcription completed！")
-				break
-			elif status == 'error':
-				logging.info("Something wrong, please check the notebook status.")
-				break
-			else:
-				logging.info("The notebook is still running. Checking again in 5 seconds...")
-				time.sleep(interval)  # 等待5秒
+				progress = min(elapsed_time / estimate_time, 0.99)  # 计算进度百分比，最大为0.99
+				my_bar.progress(int(progress * 100), text=progress_text)
+				
+				# 检查状态是否为"complete"
+				if status == "complete":
+					logger.info("The notebook has finished running.")
+					my_bar.progress(100, text="Transcription completed！")
+					break
+				elif status == 'error':
+					logger.info("Something wrong, please check the notebook status.")
+					break
+				elif status == 'running':
+					elapsed_time += 5
+					logger.info("The notebook is still running. Checking again in 5 seconds...")
+					time.sleep(interval)  # 等待5秒
 
 
 def save_output(notebook,kg_notebook_output_dir):
@@ -151,9 +152,9 @@ def kg_notebook_run_youtube(notebook,kg_notebook_dir,kg_notebook_output_dir):
 	if st.session_state.youtube_notebook_status == "complete":
 		save_output(notebook,kg_notebook_output_dir)
 		st.session_state.youtube_notebook_output = True
-		logging.info('output file saved success!')
+		logger.info('output file saved success!')
 	else:
-		logging.error("opps! something wrong")
+		logger.error("opps! something wrong")
 
 def kg_notebook_run_with_transcript(notebook,kg_notebook_dir,kg_notebook_output_dir):	
 	set_notebook_dir(kg_notebook_dir)
@@ -163,9 +164,9 @@ def kg_notebook_run_with_transcript(notebook,kg_notebook_dir,kg_notebook_output_
 	if st.session_state.notebook_status == "complete":
 		save_output(notebook,kg_notebook_output_dir)
 		st.session_state.notebook_output = True
-		logging.info('output file saved success!')
+		logger.info('output file saved success!')
 	else:
-		logging.error("opps! something wrong")
+		logger.error("opps! something wrong")
 
 
 
@@ -192,11 +193,11 @@ def update_transcript_audio(dataset,audio_file,kg_notebook_input_data_dir):
 			
 			# download metadata for an existing dataset
 			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True,capture_output=True,text=True)
-			logging.info(f"Transcript audio dataset metadata log: {kg_dataset}")
+			logger.info(f"Transcript audio dataset metadata log: {kg_dataset}")
 			
 			# move audio_file to transcript-audio dataset
 			cp_audio_file = subprocess.run(["cp",audio_file,kg_notebook_input_data_dir],check=True)
-			logging.info(f"transcript audio data: {os.listdir(kg_notebook_input_data_dir)}")
+			logger.info(f"transcript audio data: {os.listdir(kg_notebook_input_data_dir)}")
 			# create a new dataset version
 			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
 			
@@ -242,7 +243,7 @@ def progress_function(stream, chunk, bytes_remaining):
 	print(f"Downloaded {percentage_of_completion}%")
 
 def youtube_download(video_url, download_path):
-	logging.info("Downloading video...")
+	logger.info("Downloading video...")
 	try:
 		yt = YouTube(video_url, on_progress_callback=progress_function)
 
@@ -260,7 +261,7 @@ def youtube_download(video_url, download_path):
 
 		return os.path.join(download_path, default_filename),video_length
 	except Exception as e:
-		logging.error(f"youtube download error: {e}")
+		logger.error(f"youtube download error: {e}")
 
 from moviepy.editor import VideoFileClip
 
@@ -313,14 +314,19 @@ youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube v
 transcript_button = st.button(label="Transcript",type="primary")
 
 if transcript_button:
+	
+	st.markdown("---")
+
 	if not youtube_url:
 		st.warning("Please input your youtube video url",icon=":material/warning:")
 	elif youtube_url:
-		logging.info(f"youtube url:{youtube_url}")
-
+		logger.info(f"youtube url:{youtube_url}")
+		
+		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
 		notebook_save_output_spinner_placeholder = st.empty()
+
 		######### use youtube-download to download youtube video
 		# dataset = 'zluckyhou/transcript-audio'
 		dataset_url = 'zluckyhou/youtube-url'
@@ -334,7 +340,7 @@ if transcript_button:
 		video_name = [file for file in os.listdir(kg_notebook_output_dir_youtu) if file.endswith('.mp4')][0]
 		youtube_video = os.path.join(kg_notebook_output_dir_youtu,video_name)
 		video_length = get_video_duration(youtube_video)
-		logging.info(f"youtube video: {youtube_video}")
+		logger.info(f"youtube video: {youtube_video}")
 
 		video_placeholder = st.empty()
 		with video_placeholder:
@@ -348,11 +354,10 @@ if transcript_button:
 		dataset = 'zluckyhou/transcript-audio'
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
 		kg_notebook_input_data_dir = 'kg_notebook_input_data'		
-		notebook_data_spinner_placeholder = st.empty()
+		
 		# move youtube video to transcript-audio dataset
 		update_transcript_audio(dataset,youtube_video,kg_notebook_input_data_dir)
 
-		st.markdown("---")
 		# st.markdown(f"Notebook data: {notebook_data}")
 
 		notebook_name = "zluckyhou/audio-transcript-forapi"
@@ -369,6 +374,7 @@ if transcript_button:
 			output_files = os.listdir(kg_notebook_output_dir)
 			srt_file = [file for file in output_files if file.endswith('.srt')][0]
 			txt_file = [file for file in output_files if file.endswith('.txt')][0]
+			logger.info(f"srt file: {srt_file}")
 			with video_placeholder:
 				st.video(youtube_video,subtitles=srt_file)
 			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
