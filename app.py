@@ -23,9 +23,19 @@ from pytube import YouTube
 
 
 
-# Configure logger
-logging.basicConfig(format="\n%(asctime)s\n%(message)s", level=logging.INFO, force=True)
+# set logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
+# clear logger if exists
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+# create a console logger
+console_handler = logging.StreamHandler()
+console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
 
 
 def save_kg_json():
@@ -55,7 +65,7 @@ def set_notebook_dir(kg_notebook_dir):
 
 def pull_and_run_notebook(notebook,kg_notebook_dir):
 	with notebook_pull_spinner_placeholder:
-		with st.spinner("Initializing WhisperFlow's advanced AI transcription engine."):
+		with st.spinner("Processing..."):
 			# pull notebook code and metadata
 			pull = subprocess.run(["kaggle","kernels","pull",notebook,"-p",kg_notebook_dir,"-m"],check=True)
 			# check notebook metadata	 
@@ -125,7 +135,7 @@ def check_kernel_status_transcript(notebook, interval=5):
 
 def save_output(notebook,kg_notebook_output_dir):
 	with notebook_save_output_spinner_placeholder:
-		with st.spinner("Your transcription is almost ready! "):
+		with st.spinner("Processing... "):
 			# remove kg_notebook dir if exists
 			kg_rm_output = subprocess.run(["rm","-rf",kg_notebook_output_dir],check=True)
 			# create output dir
@@ -182,11 +192,11 @@ def update_transcript_audio(dataset,audio_file,kg_notebook_input_data_dir):
 			
 			# download metadata for an existing dataset
 			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True,capture_output=True,text=True)
-			logging.info(f"doload dataset metadata log: {kg_dataset}")
+			logging.info(f"Transcript audio dataset metadata log: {kg_dataset}")
 			
 			# move audio_file to transcript-audio dataset
 			cp_audio_file = subprocess.run(["cp",audio_file,kg_notebook_input_data_dir],check=True)
-
+			logging.info(f"transcript audio data: {os.listdir(kg_notebook_input_data_dir)}")
 			# create a new dataset version
 			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
 			
@@ -321,11 +331,18 @@ if transcript_button:
 		kg_notebook_dir_youtu = 'kg_notebook_youtu'
 		kg_notebook_output_dir_youtu = 'kg_notebook_output_youtu'
 		kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
-		youtube_video = os.path.join(kg_notebook_output_dir_youtu,os.listdir(kg_notebook_output_dir_youtu)[0])
+		video_name = [file for file in os.listdir(kg_notebook_output_dir_youtu) if file.endswith('.mp4')][0]
+		youtube_video = os.path.join(kg_notebook_output_dir_youtu,video_name)
 		video_length = get_video_duration(youtube_video)
+		logging.info(f"youtube video: {youtube_video}")
+
+		video_placeholder = st.empty()
+		with video_placeholder:
+			st.video(youtube_video)
 
 		st.session_state.youtube_video = youtube_video
 		st.session_state.video_length = video_length
+
 
 		# use audio-transcript-forapi to transcript
 		dataset = 'zluckyhou/transcript-audio'
@@ -350,11 +367,10 @@ if transcript_button:
 		if st.session_state.notebook_output:
 			st.markdown("Transcription completed successfully!")
 			output_files = os.listdir(kg_notebook_output_dir)
-			videos = [file for file in output_files if mimetypes.guess_type(file)[0].startswith('video')]
-			video_file = videos[0] if videos else ''
-			srt_file = [file for file in output_files if file.endswith('.srt')]
-			txt_file = [file for file in output_files if file.endswith('.txt')]
-			st.video(video_file,subtitles=srt_file)
+			srt_file = [file for file in output_files if file.endswith('.srt')][0]
+			txt_file = [file for file in output_files if file.endswith('.txt')][0]
+			with video_placeholder:
+				st.video(youtube_video,subtitles=srt_file)
 			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
 		else:
 			st.error("Opps,something went wrong!",icon="🔥")
