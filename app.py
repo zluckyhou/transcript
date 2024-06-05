@@ -133,7 +133,7 @@ def check_dataset_status(dataset):
 			print("New dataset is still updating...")
 			time.sleep(5)
 
-def update_data(dataset,url,kg_notebook_input_data_dir):
+def update_transcript_audio(dataset,audio_file,kg_notebook_input_data_dir):
 	with notebook_data_spinner_placeholder:
 		with st.spinner("Preparing your audio/video data for transcription."):
 			# remove if exists
@@ -145,12 +145,10 @@ def update_data(dataset,url,kg_notebook_input_data_dir):
 			# download metadata for an existing dataset
 			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True,capture_output=True,text=True)
 			logging.info(f"doload dataset metadata log: {kg_dataset}")
-			# update youtube url
-			# update_youtu_url(url,kg_notebook_input_data_dir)
-			# download youtube url
-			youtube_video,video_length = youtube_download(url, kg_notebook_input_data_dir)
-			st.session_state.youtube_video = youtube_video
-			st.session_state.video_length = video_length
+			
+			# move audio_file to transcript-audio dataset
+			cp_audio_file = subprocess.run(["cp",audio_file,kg_notebook_input_data_dir],check=True)
+
 			# create a new dataset version
 			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
 			
@@ -165,6 +163,28 @@ def update_youtu_url(url,kg_notebook_input_data_dir):
 
 	with open(youtube_url_file_path,'w') as f:
 		f.write(url)
+
+def update_kg_youtube_url(dataset,url,kg_notebook_input_data_dir):
+    # remove if exists
+    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+    
+    # make dataset dir
+    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+    
+    # download metadata for an existing dataset
+    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+
+    # update youtube url
+    update_youtu_url(url,kg_notebook_input_data_dir)
+
+    # create a new dataset version
+    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+    
+    # check dataset status
+    check_dataset_status(dataset)
+
+
+
 
 
 def progress_function(stream, chunk, bytes_remaining):
@@ -193,6 +213,27 @@ def youtube_download(video_url, download_path):
 		return os.path.join(download_path, default_filename),video_length
 	except Exception as e:
 		logging.error(f"youtube download error: {e}")
+
+from moviepy.editor import VideoFileClip
+
+def get_video_duration(file_path):
+    try:
+        # 加载视频文件
+        clip = VideoFileClip(file_path)
+        
+        # 获取视频时长（以秒为单位）
+        duration = clip.duration
+        
+        # 关闭视频文件
+        clip.close()
+        
+        return duration
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+
+
 
 if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
@@ -223,12 +264,30 @@ if transcript_button:
 		st.warning("Please input your youtube video url",icon=":material/warning:")
 	elif youtube_url:
 		logging.info(f"youtube url:{youtube_url}")
+
+		######### use youtube-download to download youtube video
+		# dataset = 'zluckyhou/transcript-audio'
+		dataset_url = 'zluckyhou/youtube-url'
+		kg_notebook_input_data_dir_youtu = './kg_notebook_input_data_url'
+		update_kg_youtube_url(dataset_url,youtube_url,kg_notebook_input_data_dir_youtu)
+		# run youtube_download to get youtube video
+		notebook_name_youtu = "zluckyhou/youtube-download"
+		kg_notebook_dir_youtu = './kg_notebook_youtu'
+		kg_notebook_output_dir_youtu = './kg_notebook_output_youtu'
+		kg_notebook_run(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
+		youtube_video = os.path.join(kg_notebook_output_dir_youtu,os.listdir(kg_notebook_output_dir_youtu)[0])
+		video_length = get_video_duration(youtube_video)
+
+		st.session_state.youtube_video = youtube_video
+		st.session_state.video_length = video_length
+
+		# use audio-transcript-forapi to transcript
 		dataset = 'zluckyhou/transcript-audio'
 		# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
 		kg_notebook_input_data_dir = './kg_notebook_input_data'		
-
 		notebook_data_spinner_placeholder = st.empty()
-		update_data(dataset,youtube_url,kg_notebook_input_data_dir)
+		# move youtube video to transcript-audio dataset
+		update_transcript_audio(dataset,youtube_video,kg_notebook_input_data_dir)
 
 		st.markdown("---")
 		# st.markdown(f"Notebook data: {notebook_data}")
@@ -255,7 +314,4 @@ if transcript_button:
 			st.markdown(f"Download [video subtitle](srt_file) or [Transcript in plain text](txt_file)")
 		else:
 			st.error("Opps,something went wrong!",icon="🔥")
-	
-
-
 
