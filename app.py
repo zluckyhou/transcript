@@ -572,19 +572,20 @@ if transcript_button:
 			memo = "Please click the 'Login' button in the sidebar to proceed."
 			st.session_state.status = 'failed'
 			st.warning(memo, icon=":material/passkey:")
+	msg = {
+	"type":trans_type,
+	"url":youtube_url,
+	"srt":st.session_state.srt_file_url,
+	"txt":st.session_state.txt_file_url,
+	"user_name":st.session_state.user_info.get('name',''),
+	"email":st.session_state.user_info.get('email',''),
+	"status":st.session_state.status,
+	"memo":memo
+	}
 
-		msg = {
-		"trans_type":trans_type,
-		"url":youtube_url,
-		"srt":st.session_state.srt_file_url,
-		"txt":st.session_state.txt_file_url,
-		"user_name":st.session_state.user_info.get('name',''),
-		"email":st.session_state.user_info.get('email',''),
-		"status":st.session_state.status,
-		"memo":memo
-		}
+	supabase_insert_message(table='transcript_messages',message=msg)
 
-		supabase_insert_message(table='transcript_messages',message=msg)
+
 
 video_placeholder = st.empty()
 
@@ -597,6 +598,5 @@ if st.session_state.srt_file:
 		st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
 		st.markdown("Transcription completed successfully!")
 		st.markdown(f"Download [video subtitle]({srt_file_url}) or [Transcript in plain text]({txt_file_url})")
-
 
 
