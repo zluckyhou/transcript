@@ -6,3 +6,4 @@ streamlit-auth0-component
 openai
 kaggle
 pytube
+moviepy
