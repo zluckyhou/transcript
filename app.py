@@ -544,7 +544,6 @@ if transcript_button:
 	elif youtube_url:
 		logger.info(f"youtube url:{youtube_url}")
 		
-		video_placeholder = st.empty()
 		notebook_update_youtube_url_spinner_placeholder = st.empty()
 		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
@@ -586,6 +585,9 @@ if transcript_button:
 		}
 
 		supabase_insert_message(table='transcript_messages',message=msg)
+
+video_placeholder = st.empty()
+
 
 if st.session_state.youtube_video:
 	with video_placeholder:
