@@ -70,23 +70,24 @@ def pull_and_run_notebook(notebook,kg_notebook_dir):
 def check_kernel_status_youtube(notebook, interval=5):
 	with notebook_running_spinner_placeholder:
 		# 无限循环，直到状态变为"complete"
-		while True:
-			result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
-			stdout = result.stdout
-			# 提取状态值
-			status = re.findall(r'status "(\w+)"',stdout)[0]
-			st.session_state.youtube_notebook_status = status
-			logging.info(f"The current status is: {status}")
-			# 检查状态是否为"complete"
-			if status == "complete":
-				logging.info("The notebook has finished running.")
-				break
-			elif status == 'error':
-				logging.info("Something wrong, please check the notebook status.")
-				break
-			else:
-				logging.info("The notebook is still running. Checking again in 5 seconds...")
-				time.sleep(interval)  # 等待5秒
+		with st.spinner("Downloading video..."):
+			while True:
+				result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
+				stdout = result.stdout
+				# 提取状态值
+				status = re.findall(r'status "(\w+)"',stdout)[0]
+				st.session_state.youtube_notebook_status = status
+				logging.info(f"The current status is: {status}")
+				# 检查状态是否为"complete"
+				if status == "complete":
+					logging.info("The notebook has finished running.")
+					break
+				elif status == 'error':
+					logging.info("Something wrong, please check the notebook status.")
+					break
+				else:
+					logging.info("The notebook is still running. Checking again in 5 seconds...")
+					time.sleep(interval)  # 等待5秒
 
 def check_kernel_status_transcript(notebook, interval=5):
 	# 预估总时长
