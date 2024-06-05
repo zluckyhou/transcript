@@ -67,7 +67,28 @@ def pull_and_run_notebook(notebook,kg_notebook_dir):
 			return kg_metadata
 
 
-def check_kernel_status(notebook, interval=5):
+def check_kernel_status_youtube(notebook, interval=5):
+	with notebook_running_spinner_placeholder:
+		# 无限循环，直到状态变为"complete"
+		while True:
+			result = subprocess.run(["kaggle", "kernels", "status", notebook], capture_output=True, text=True)
+			stdout = result.stdout
+			# 提取状态值
+			status = re.findall(r'status "(\w+)"',stdout)[0]
+			st.session_state.youtube_notebook_status = status
+			logging.info(f"The current status is: {status}")
+			# 检查状态是否为"complete"
+			if status == "complete":
+				logging.info("The notebook has finished running.")
+				break
+			elif status == 'error':
+				logging.info("Something wrong, please check the notebook status.")
+				break
+			else:
+				logging.info("The notebook is still running. Checking again in 5 seconds...")
+				time.sleep(interval)  # 等待5秒
+
+def check_kernel_status_transcript(notebook, interval=5):
 	# 预估总时长
 	estimate_time = 237 + st.session_state.video_length / 25
 	start_time = time.time()
@@ -100,6 +121,7 @@ def check_kernel_status(notebook, interval=5):
 				logging.info("The notebook is still running. Checking again in 5 seconds...")
 				time.sleep(interval)  # 等待5秒
 
+
 def save_output(notebook,kg_notebook_output_dir):
 	with notebook_save_output_spinner_placeholder:
 		with st.spinner("Your transcription is almost ready! "):
@@ -110,18 +132,33 @@ def save_output(notebook,kg_notebook_output_dir):
 			# save output
 			kg_save_output = subprocess.run(["kaggle", "kernels", "output", notebook, "-p", kg_notebook_output_dir], check=True)
 
-def kg_notebook_run(notebook,kg_notebook_dir,kg_notebook_output_dir):	
+def kg_notebook_run_youtube(notebook,kg_notebook_dir,kg_notebook_output_dir):	
 	set_notebook_dir(kg_notebook_dir)
 	
 	pull_and_run_notebook(notebook,kg_notebook_dir)
-	check_kernel_status(notebook, interval=5)
+	check_kernel_status_youtube(notebook, interval=5)
+	if st.session_state.youtube_notebook_status == "complete":
+		save_output(notebook,kg_notebook_output_dir)
+		st.session_state.youtube_notebook_output = True
+		logging.info('output file saved success!')
+	else:
+		logging.error("opps! something wrong")
+
+def kg_notebook_run_with_transcript(notebook,kg_notebook_dir,kg_notebook_output_dir):	
+	set_notebook_dir(kg_notebook_dir)
+	
+	pull_and_run_notebook(notebook,kg_notebook_dir)
+	check_kernel_status_transcript(notebook, interval=5)
 	if st.session_state.notebook_status == "complete":
 		save_output(notebook,kg_notebook_output_dir)
 		st.session_state.notebook_output = True
 		logging.info('output file saved success!')
 	else:
 		logging.error("opps! something wrong")
-	
+
+
+
+
 def check_dataset_status(dataset):
 	while True:
 		# get dataset creation status
@@ -239,6 +276,11 @@ if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
 if "notebook_output" not in st.session_state:
 	st.session_state.notebook_output = ''
+if "youtube_notebook_status" not in st.session_state:
+	st.session_state.youtube_notebook_status = ''
+if "youtube_notebook_output" not in st.session_state:
+	st.session_state.youtube_notebook_output = ''
+
 if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
 if "video_length" not in st.session_state:
@@ -274,7 +316,7 @@ if transcript_button:
 		notebook_name_youtu = "zluckyhou/youtube-download"
 		kg_notebook_dir_youtu = './kg_notebook_youtu'
 		kg_notebook_output_dir_youtu = './kg_notebook_output_youtu'
-		kg_notebook_run(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
+		kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
 		youtube_video = os.path.join(kg_notebook_output_dir_youtu,os.listdir(kg_notebook_output_dir_youtu)[0])
 		video_length = get_video_duration(youtube_video)
 
@@ -300,7 +342,7 @@ if transcript_button:
 		notebook_running_spinner_placeholder = st.empty()
 		notebook_save_output_spinner_placeholder = st.empty()
 		# run kaggle
-		kg_notebook_run(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
+		kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
 
 		# display result if notebook running complete
 		if st.session_state.notebook_output:
