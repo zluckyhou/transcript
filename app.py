@@ -204,7 +204,7 @@ def check_kernel_status_youtube(notebook, interval=5):
 
 def check_kernel_status_transcript(notebook, interval=5):
 	# 预估总时长
-	estimate_time = 237 + st.session_state.video_length / 25
+	estimate_time = 40 + st.session_state.video_length / 6
 	elapsed_time = 0
 	with notebook_running_spinner_placeholder:
 		with st.spinner("WhisperFlow is now actively transcribing your audio/video."):
@@ -415,7 +415,7 @@ def wrap_transcript_audio(audio_file):
 
 	# st.markdown(f"Notebook data: {notebook_data}")
 
-	notebook_name = "zluckyhou/audio-transcript-forapi"
+	notebook_name = "zluckyhou/faster-whisper-forapi"
 	kg_notebook_dir = 'kg_notebook/'
 	kg_notebook_output_dir = 'kg_notebook_output'
 
