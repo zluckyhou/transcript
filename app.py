@@ -337,6 +337,33 @@ def update_kg_youtube_url(dataset,url,kg_notebook_input_data_dir):
 		    # check dataset status
 		    check_dataset_status(dataset)
 
+def update_kg_transcript_model(transcript_model):
+	dataset = 'zluckyhou/transcript-model'
+	kg_notebook_input_data_dir = 'kg_notebook_input_data_model'
+	with notebook_model_initialize_placeholder:
+		with st.spinner("Initializing..."):
+		    # remove if exists
+		    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+		    
+		    # make dataset dir
+		    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+		    
+		    # download metadata for an existing dataset
+		    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+
+		    # update youtube url
+			model_file = 'transcript_model.txt'
+			model_file_path = os.path.join(kg_notebook_input_data_dir,model_file)
+
+			with open(youtube_url_file_path,'w') as f:
+				f.write(transcript_model)	    
+
+		    # create a new dataset version
+		    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+		    
+		    # check dataset status
+		    check_dataset_status(dataset)
+
 
 
 
@@ -513,7 +540,8 @@ with st.sidebar:
 		if user_info:
 			st.session_state.user_info = user_info  # 保存用户信息到 session
 			st.rerun()  # 重新运行应用以更新状态
-	
+	st.divider()
+	transcript_model = st.selectbox("Transcript model",("large-v2","large-v3"))
 
 st.sidebar.divider()
 st.sidebar.markdown('If you have any questions or need assistance, please feel free to contact me via [email](mailto:hou0922@gmail.com)')
@@ -545,6 +573,7 @@ if transcript_button:
 		logger.info(f"youtube url:{youtube_url}")
 		
 		video_placeholder = st.empty()
+		notebook_model_initialize_placeholder = st.empty()
 		notebook_update_youtube_url_spinner_placeholder = st.empty()
 		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
@@ -557,6 +586,7 @@ if transcript_button:
 			user_name = st.session_state.user_info['name']
 			email = st.session_state.user_info['email']
 			if is_user_valid(email):
+				update_kg_transcript_model(transcript_model)
 				# use youtube-download to download youtube video
 				wrap_download_youtube(youtube_url)
 				# transcript youtube video
