@@ -355,8 +355,8 @@ def update_kg_transcript_model(transcript_model):
 			model_file = 'transcript_model.txt'
 			model_file_path = os.path.join(kg_notebook_input_data_dir,model_file)
 
-			with open(youtube_url_file_path,'w') as f:
-				f.write(transcript_model)		
+			with open(model_file_path,'w') as f:
+				f.write(transcript_model)
 
 			# create a new dataset version
 			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
