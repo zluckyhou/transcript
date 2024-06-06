@@ -491,11 +491,14 @@ def transcript_youtube(youtube_url):
 				wrap_transcript_audio(st.session_state.youtube_video)
 				st.session_state.status = 'success'
 				update_data = update_user_msg_pv(email)
+				st.session_state.memo = 'success'
 			else:
 				st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
 				st.session_state.status = 'failed'
+				st.session_state.memo = 'usage limit'
 		else:
 			st.session_state.status = 'failed'
+			st.session_state.memo = 'not login'
 
 
 if "notebook_status" not in st.session_state:
@@ -527,7 +530,7 @@ if 'status' not in st.session_state:
 if 'quota_limit' not in st.session_state:
 	st.session_state.quota_limit = ''
 if "memo" not in st.session_state:
-	st.session_state.momo = ''
+	st.session_state.memo = ''
 if "youtube_url_error" not in st.session_state:
 	st.session_state.youtube_url_error = ''
 if "trans_type" not in st.session_state:
@@ -640,7 +643,7 @@ if st.session_state.status == 'success':
 	"user_name":st.session_state.user_info.get('name',''),
 	"email":st.session_state.user_info.get('email',''),
 	"status":st.session_state.status,
-	"memo":memo
+	"memo":st.session_state.memo
 	}
 
 	supabase_insert_message(table='transcript_messages',message=msg)
