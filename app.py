@@ -674,7 +674,7 @@ if img == 'youtube_url.png':
 		args=[youtube_url]
 		)
 	st.session_state.transcript_youtube_button = transcript_youtube_button
-elif img == 'upload_audio.png':
+elif img == 'uoload_audio.png':
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
 		save_file_and_display(uploaded_file)
