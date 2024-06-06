@@ -461,9 +461,6 @@ def wrap_transcript_audio(audio_file):
 		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
 		st.session_state.srt_file_url = srt_file_url
 		st.session_state.txt_file_url = txt_file_url
-	else:
-		st.error("Opps,something went wrong!",icon="🔥")
-
 
 
 
@@ -564,6 +561,7 @@ if transcript_button:
 
 	st.session_state.youtube_video = ''
 	st.session_state.srt_file = ''
+	st.session_state.notebook_status = ''
 	
 	st.markdown("---")
 
@@ -624,7 +622,8 @@ if transcript_button:
 if st.session_state.srt_file:
 	with video_placeholder:
 		st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
-		st.markdown("Transcription completed successfully!")
-		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
-
+	st.markdown("Transcription completed successfully!")
+	st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
+if st.session_state.notebook_status == 'error':
+	st.error("Opps,something went wrong!",icon="🔥")
 
