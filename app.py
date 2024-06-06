@@ -658,7 +658,7 @@ img = image_select(
     label="Select Audio Source",
     images=[
         "youtube_url.png",
-        "upload_audio.png",
+        "uoload_audio.png",
     ],
     captions=["YouTube Link", "Upload File"],
 )
