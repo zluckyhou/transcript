@@ -659,9 +659,8 @@ img = image_select(
     captions=["YouTube Link", "Upload File"],
 )
 
-if img == 'youtube_url.png'：
+if img == 'youtube_url.png':
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
-
 
 	transcript_youtube_button = st.button(
 		label="Transcript",
@@ -670,7 +669,7 @@ if img == 'youtube_url.png'：
 		on_click=transcript_youtube,
 		args=[youtube_url]
 		)
-elif img == 'upload_audio.png'：
+elif img == 'upload_audio.png':
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
 		save_file_and_display(uploaded_file)
@@ -678,6 +677,7 @@ elif img == 'upload_audio.png'：
 		st.audio(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
 	if st.session_state.upload_audio_type.startswith('video'):
 		st.video(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
+	
 	transcript_audio_button = st.button(
 		label="Transcript",
 		type="primary",
