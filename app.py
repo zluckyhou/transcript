@@ -29,7 +29,7 @@ logger.setLevel(logging.DEBUG)
 
 # clear logger if exists
 if logger.hasHandlers():
-    logger.handlers.clear()
+	logger.handlers.clear()
 
 # create a console logger
 console_handler = logging.StreamHandler()
@@ -55,33 +55,33 @@ def get_supabase_client():
 
 # insert data to database
 def supabase_insert_message(table,message):
-    supabase = get_supabase_client()
-    data, count = supabase.table(table).insert(message).execute()
+	supabase = get_supabase_client()
+	data, count = supabase.table(table).insert(message).execute()
 
 def supabase_insert_user(name,user_name,profile,picture,oauth_token,email):
-    supabase = get_supabase_client()
-    data, count = supabase.table('transcript_users').insert({"name":name,"user_name":user_name,"profile":profile,"picture":picture,"oauth_token":oauth_token,"email":email}).execute()
+	supabase = get_supabase_client()
+	data, count = supabase.table('transcript_users').insert({"name":name,"user_name":user_name,"profile":profile,"picture":picture,"oauth_token":oauth_token,"email":email}).execute()
 
 
 def supabase_fetch_user(user_name):
-    supabase = get_supabase_client()
-    data,count = supabase.table('transcript_users').select("*").eq('user_name',user_name).execute()
-    return data
+	supabase = get_supabase_client()
+	data,count = supabase.table('transcript_users').select("*").eq('user_name',user_name).execute()
+	return data
 
 def update_user_by_email(email,k,v):
-    supabase = get_supabase_client()
-    data, count = supabase.table('transcript_users').update({k: v}).eq('email', email).execute()
-    return data
+	supabase = get_supabase_client()
+	data, count = supabase.table('transcript_users').update({k: v}).eq('email', email).execute()
+	return data
 
 def supabase_fetch_user_by_email(email):
-    supabase = get_supabase_client()
-    data,count = supabase.table('transcript_users').select("*").eq('email',email).execute()
-    return data
+	supabase = get_supabase_client()
+	data,count = supabase.table('transcript_users').select("*").eq('email',email).execute()
+	return data
 
 def supabase_fetch_kofi_by_email(email):
-    supabase = get_supabase_client()
-    data,count = supabase.table('kofi_donation').select("*").eq('email',email).execute()
-    return data
+	supabase = get_supabase_client()
+	data,count = supabase.table('kofi_donation').select("*").eq('email',email).execute()
+	return data
 
 # check if file already exists
 def check_supabase_file_exists(file_path,bucket_name):
@@ -96,7 +96,7 @@ def check_supabase_file_exists(file_path,bucket_name):
 
 # user unicodedata to remove characters that are not ASCII
 def remove_non_ascii(text):
-    return ''.join(c for c in text if ord(c) < 128)
+	return ''.join(c for c in text if ord(c) < 128)
 
 def upload_file_to_supabase_storage(file_path):
 	base_name = remove_non_ascii(os.path.basename(file_path))
@@ -319,50 +319,50 @@ def update_youtu_url(url,kg_notebook_input_data_dir):
 def update_kg_youtube_url(dataset,url,kg_notebook_input_data_dir):
 	with notebook_update_youtube_url_spinner_placeholder:
 		with st.spinner("Processing..."):
-		    # remove if exists
-		    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
-		    
-		    # make dataset dir
-		    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
-		    
-		    # download metadata for an existing dataset
-		    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+			# remove if exists
+			rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+			
+			# make dataset dir
+			dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+			
+			# download metadata for an existing dataset
+			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
 
-		    # update youtube url
-		    update_youtu_url(url,kg_notebook_input_data_dir)
+			# update youtube url
+			update_youtu_url(url,kg_notebook_input_data_dir)
 
-		    # create a new dataset version
-		    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
-		    
-		    # check dataset status
-		    check_dataset_status(dataset)
+			# create a new dataset version
+			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+			
+			# check dataset status
+			check_dataset_status(dataset)
 
 def update_kg_transcript_model(transcript_model):
 	dataset = 'zluckyhou/transcript-model'
 	kg_notebook_input_data_dir = 'kg_notebook_input_data_model'
 	with notebook_model_initialize_placeholder:
 		with st.spinner("Initializing..."):
-		    # remove if exists
-		    rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
-		    
-		    # make dataset dir
-		    dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
-		    
-		    # download metadata for an existing dataset
-		    kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
+			# remove if exists
+			rm_dataset = subprocess.run(["rm","-rf",kg_notebook_input_data_dir],check=True)
+			
+			# make dataset dir
+			dataset_mkdir = subprocess.run(["mkdir","-p",kg_notebook_input_data_dir],check=True)
+			
+			# download metadata for an existing dataset
+			kg_dataset = subprocess.run(["kaggle","datasets","metadata","-p",kg_notebook_input_data_dir,dataset],check=True)
 
-		    # update youtube url
+			# update youtube url
 			model_file = 'transcript_model.txt'
 			model_file_path = os.path.join(kg_notebook_input_data_dir,model_file)
 
 			with open(youtube_url_file_path,'w') as f:
-				f.write(transcript_model)	    
+				f.write(transcript_model)		
 
-		    # create a new dataset version
-		    kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
-		    
-		    # check dataset status
-		    check_dataset_status(dataset)
+			# create a new dataset version
+			kg_dataset_update = subprocess.run(["kaggle","datasets","version","-p",kg_notebook_input_data_dir,"-m","Updated data"])
+			
+			# check dataset status
+			check_dataset_status(dataset)
 
 
 
@@ -398,20 +398,20 @@ def youtube_download(video_url, download_path):
 from moviepy.editor import VideoFileClip
 
 def get_video_duration(file_path):
-    try:
-        # 加载视频文件
-        clip = VideoFileClip(file_path)
-        
-        # 获取视频时长（以秒为单位）
-        duration = clip.duration
-        
-        # 关闭视频文件
-        clip.close()
-        
-        return duration
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
+	try:
+		# 加载视频文件
+		clip = VideoFileClip(file_path)
+		
+		# 获取视频时长（以秒为单位）
+		duration = clip.duration
+		
+		# 关闭视频文件
+		clip.close()
+		
+		return duration
+	except Exception as e:
+		print(f"An error occurred: {e}")
+		return None
 
 
 def wrap_download_youtube(youtube_url):
