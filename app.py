@@ -462,6 +462,20 @@ def wrap_transcript_audio(audio_file):
 		st.session_state.srt_file_url = srt_file_url
 		st.session_state.txt_file_url = txt_file_url
 
+def save_file_and_display(file_obj):
+	base_name = remove_non_ascii(os.path.basename(file_obj.name))
+	mime_type, _ = mimetypes.guess_type(base_name)
+
+	output_path = 'audios_' + st.session_state.user_info.get('name','unknown')
+	output_file_path = os.path.join(output_path,base_name)
+	
+	bytes_data = file_obj.getvalue()
+	with open(output_file_path,'wb') as f:
+		f.write(bytes_data)
+
+	st.session_state.upload_audio = output_file_path
+	st.session_state.upload_audio_type = mime_type
+
 
 
 def transcript_youtube(youtube_url):
@@ -500,6 +514,39 @@ def transcript_youtube(youtube_url):
 			st.session_state.status = 'failed'
 			st.session_state.memo = 'not login'
 
+def transcript_audio_file(audio_file):
+	st.session_state.srt_file = ''
+	st.session_state.notebook_status = ''
+	st.session_state.quota_limit = ''
+
+	st.markdown("---")
+
+	if not audio_file:
+		st.session_state.audio_file_empty = 'Please upload your audio file'
+		return
+	elif audio_file:
+		logger.info(f"audio file:{audio_file}")
+		st.session_state.trans_type = 'audio_file'
+		if st.session_state.get('user_info', {}):
+			user_name = st.session_state.user_info['name']
+			email = st.session_state.user_info['email']
+			if is_user_valid(email):
+				update_kg_transcript_model(transcript_model)
+				# transcript uploaded audio file
+				wrap_transcript_audio(audio_file)
+				st.session_state.status = 'success'
+				update_data = update_user_msg_pv(email)
+				st.session_state.memo = 'success'
+			else:
+				st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
+				st.session_state.status = 'failed'
+				st.session_state.memo = 'usage limit'
+		else:
+			st.session_state.status = 'failed'
+			st.session_state.memo = 'not login'
+
+
+
 
 if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
@@ -536,6 +583,13 @@ if "youtube_url_error" not in st.session_state:
 if "trans_type" not in st.session_state:
 	st.session_state.trans_type = ''
 
+
+if "upload_audio" not in st.session_state:
+	st.session_state.upload_audio = ''
+if "upload_audio_type" not in st.session_state:
+	st.session_state.upload_audio_type = ''
+if "audio_file_empty" not in st.session_state:
+	st.session_state.audio_file_empty = ''
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
@@ -587,23 +641,51 @@ st.sidebar.markdown('If you have any questions or need assistance, please feel f
 
 
 
+save_kg_json()
 
 
 st.title("Whisper Flow")
 st.markdown(" The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.")
 
 
-save_kg_json()
+from streamlit_image_select import image_select
 
-youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
+img = image_select(
+    label="Select Audio Source",
+    images=[
+        "youtube_url.png",
+        "upload_audio.png",
+    ],
+    captions=["YouTube Link", "Upload File"],
+)
 
-transcript_youtube = st.button(
-	label="Transcript",
-	type="primary",
-	key="transcript_youtube",
-	on_click=transcript_youtube,
-	args=[youtube_url]
-	)
+if img == 'youtube_url.png'：
+	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
+
+
+	transcript_youtube_button = st.button(
+		label="Transcript",
+		type="primary",
+		key="transcript_youtube",
+		on_click=transcript_youtube,
+		args=[youtube_url]
+		)
+elif img == 'upload_audio.png'：
+	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
+	if uploaded_file:
+		save_file_and_display(uploaded_file)
+	if st.session_state.upload_audio_type.startswith('audio'):
+		st.audio(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
+	if st.session_state.upload_audio_type.startswith('video'):
+		st.video(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
+	transcript_audio_button = st.button(
+		label="Transcript",
+		type="primary",
+		key="transcript_audio",
+		on_click=transcript_audio_file,
+		args=[st.session_state.upload_audio]
+		)
+
 
 
 
@@ -622,8 +704,10 @@ if st.session_state.youtube_url_error:
 	st.warning(st.session_state.youtube_url_error,icon=":material/warning:")
 if st.session_state.quota_limit:
 	st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
-if not st.session_state.user_info:
+if transcript_youtube_button and not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
+if transcript_audio_button and st.session_state.audio_file_empty:
+	st.warning(st.session_state.audio_file_empty)
 
 
 if st.session_state.youtube_video:
@@ -643,7 +727,8 @@ if st.session_state.status == 'success':
 	"user_name":st.session_state.user_info.get('name',''),
 	"email":st.session_state.user_info.get('email',''),
 	"status":st.session_state.status,
-	"memo":st.session_state.memo
+	"memo":st.session_state.memo,
+	"audio_file":st.session_state.upload_audio
 	}
 
 	supabase_insert_message(table='transcript_messages',message=msg)
