@@ -544,12 +544,13 @@ if transcript_button:
 	elif youtube_url:
 		logger.info(f"youtube url:{youtube_url}")
 		
+		video_placeholder = st.empty()
 		notebook_update_youtube_url_spinner_placeholder = st.empty()
 		notebook_data_spinner_placeholder = st.empty()
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
 		notebook_save_output_spinner_placeholder = st.empty()
-		video_placeholder = st.empty()
+		
 
 		trans_type = 'youtube_url'
 		if st.session_state.get('user_info', {}):
