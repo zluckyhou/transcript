@@ -559,9 +559,12 @@ if transcript_button:
 				wrap_download_youtube(youtube_url)
 				# transcript youtube video
 				if st.session_state.youtube_video:
+					with video_placeholder:
+						st.video(st.session_state.youtube_video)
 					wrap_transcript_audio(st.session_state.youtube_video)
 				st.session_state.status = 'success'
 				update_data = update_user_msg_pv(email)
+				memo = ''
 
 			else:
 				st.session_state.quota_limit = True
@@ -589,10 +592,6 @@ if transcript_button:
 
 video_placeholder = st.empty()
 
-
-if st.session_state.youtube_video:
-	with video_placeholder:
-		st.video(st.session_state.youtube_video)
 if st.session_state.srt_file:
 	with video_placeholder:
 		st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
