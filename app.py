@@ -590,6 +590,10 @@ if "upload_audio_type" not in st.session_state:
 	st.session_state.upload_audio_type = ''
 if "audio_file_empty" not in st.session_state:
 	st.session_state.audio_file_empty = ''
+if "transcript_audio_button" not in st.session_state:
+	st.session_state.transcript_audio_button = ''
+if "transcript_youtube_button" not in st.session_state:
+	st.session_state.transcript_youtube_button = ''
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
@@ -669,6 +673,7 @@ if img == 'youtube_url.png':
 		on_click=transcript_youtube,
 		args=[youtube_url]
 		)
+	st.session_state.transcript_youtube_button = transcript_youtube_button
 elif img == 'upload_audio.png':
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
@@ -685,6 +690,7 @@ elif img == 'upload_audio.png':
 		on_click=transcript_audio_file,
 		args=[st.session_state.upload_audio]
 		)
+	st.session_state.transcript_audio_button = transcript_audio_button
 
 
 
@@ -704,9 +710,9 @@ if st.session_state.youtube_url_error:
 	st.warning(st.session_state.youtube_url_error,icon=":material/warning:")
 if st.session_state.quota_limit:
 	st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
-if transcript_youtube_button and not st.session_state.user_info:
+if st.session_state.transcript_youtube_button and not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
-if transcript_audio_button and st.session_state.audio_file_empty:
+if st.session_state.transcript_audio_button and st.session_state.audio_file_empty:
 	st.warning(st.session_state.audio_file_empty)
 
 
