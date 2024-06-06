@@ -549,6 +549,7 @@ if transcript_button:
 		notebook_pull_spinner_placeholder = st.empty()
 		notebook_running_spinner_placeholder = st.empty()
 		notebook_save_output_spinner_placeholder = st.empty()
+		video_placeholder = st.empty()
 
 		trans_type = 'youtube_url'
 		if st.session_state.get('user_info', {}):
@@ -588,9 +589,6 @@ if transcript_button:
 
 	supabase_insert_message(table='transcript_messages',message=msg)
 
-
-
-video_placeholder = st.empty()
 
 if st.session_state.srt_file:
 	with video_placeholder:
