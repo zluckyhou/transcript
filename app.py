@@ -504,6 +504,7 @@ def record_and_display():
 			st.session_state.audio_file = output_file_path
 
 
+
 def transcript_youtube(youtube_url):
 	st.session_state.youtube_video = ''
 	st.session_state.srt_file = ''
@@ -739,9 +740,9 @@ elif img == 'record_logo.png':
 	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
 	record_and_display()
-	# if st.session_state.record_audio_data:
-	# 	logger.info(f"record audio: {st.session_state.record_audio_data}")
-	# 	st.audio(st.session_state.record_audio_data, format='audio/wav')
+	if st.session_state.record_audio_data:
+		logger.info(f"record audio: {st.session_state.record_audio_data}")
+		st.audio(st.session_state.record_audio_data, format='audio/wav')
 	st.session_state.transcript_record_button = st.button(
 		label="Transcript",
 		type="primary",
