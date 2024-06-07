@@ -657,13 +657,13 @@ from streamlit_image_select import image_select
 img = image_select(
     label="Select Audio Source",
     images=[
-        "youtube_url.png",
-        "uoload_audio.png",
+        "youtube_logo.png",
+        "upload_logo.png",
     ],
     captions=["YouTube Link", "Upload File"],
 )
 
-if img == 'youtube_url.png':
+if img == 'youtube_logo.png':
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
 
 	transcript_youtube_button = st.button(
@@ -674,7 +674,7 @@ if img == 'youtube_url.png':
 		args=[youtube_url]
 		)
 	st.session_state.transcript_youtube_button = transcript_youtube_button
-elif img == 'uoload_audio.png':
+elif img == 'upload_logo.png':
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
 		save_file_and_display(uploaded_file)
