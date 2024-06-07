@@ -488,7 +488,7 @@ def record_and_display():
 	with st.container(border=True):
 		wav_audio_data = st_audiorec()
 
-	output_path = 'record_audios_' + st.session_state.user_info.get('name','unknown')
+	output_path = 'record_audios'
 	# remove directory if exists 
 	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
 	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
@@ -550,8 +550,6 @@ def transcript_audio_file(audio_file):
 		return
 	elif audio_file:
 		if st.session_state.get('user_info', {}):
-
-
 			logger.info(f"audio file:{audio_file}")
 
 			user_name = st.session_state.user_info['name']
