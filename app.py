@@ -547,13 +547,11 @@ def transcript_audio_file(audio_file):
 		st.session_state.audio_file_empty = 'Please upload your audio file or record audio.'
 		return
 	elif audio_file:
+		logger.info(f"audio file:{audio_file}")
 		if st.session_state.get('user_info', {}):
-			logger.info(f"audio file:{audio_file}")
-
-			user_name = st.session_state.user_info['name']
 			email = st.session_state.user_info['email']
 			if is_user_valid(email):
-				st.markdown("Transcription task submitted!")
+				# st.markdown("Transcription task submitted!")
 				mime_type, _ = mimetypes.guess_type(audio_file)
 				if mime_type.startswith("video"):
 					audio_length = get_video_duration(audio_file)
