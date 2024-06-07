@@ -8,3 +8,4 @@ kaggle
 pytube
 moviepy
 streamlit_image_select
+streamlit-audiorec
