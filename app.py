@@ -512,8 +512,6 @@ def transcript_youtube(youtube_url):
 	st.session_state.youtube_url_error = ''
 	st.session_state.quota_limit = ''
 
-	st.markdown("---")
-
 	if not youtube_url:
 		st.session_state.youtube_url_error = 'Please input your youtube video url'
 		return
@@ -544,9 +542,6 @@ def transcript_audio_file(audio_file):
 	st.session_state.srt_file = ''
 	st.session_state.notebook_status = ''
 	st.session_state.quota_limit = ''
-
-	st.markdown("---")
-
 
 	if not audio_file:
 		st.session_state.audio_file_empty = 'Please upload your audio file or record audio.'
@@ -579,8 +574,6 @@ def transcript_audio_file(audio_file):
 		else:
 			st.session_state.status = 'failed'
 			st.session_state.memo = 'not login'
-
-
 
 
 if "notebook_status" not in st.session_state:
@@ -751,6 +744,7 @@ elif img == 'record_logo.png':
 		args=[st.session_state.audio_file]
 		)
 
+st.markdown("---")
 
 
 video_placeholder = st.empty()
