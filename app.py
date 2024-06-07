@@ -695,6 +695,7 @@ img = image_select(
 )
 
 if img == 'youtube_logo.png':
+	st.session_state.audio_file_empty = ''
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
 
 	st.session_state.transcript_youtube_button = st.button(
@@ -705,6 +706,7 @@ if img == 'youtube_logo.png':
 		args=[youtube_url]
 		)
 elif img == 'upload_logo.png':
+	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
 		save_file_and_display(uploaded_file)
@@ -721,6 +723,7 @@ elif img == 'upload_logo.png':
 		args=[st.session_state.upload_audio]
 		)
 elif img == 'record_logo.png':
+	st.session_state.youtube_url_error = ''
 	record_and_display()
 	# if st.session_state.record_audio_data:
 	# 	logger.info(f"record audio: {st.session_state.record_audio_data}")
