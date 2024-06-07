@@ -698,9 +698,9 @@ from streamlit_image_select import image_select
 img = image_select(
     label="Select Audio Source",
     images=[
+    	"record_logo.png",
         "youtube_logo.png",
         "upload_logo.png",
-        "record_logo.png"
     ],
     captions=["YouTube Link", "Upload File","Record Audio"],
 )
@@ -708,7 +708,7 @@ img = image_select(
 if img == 'youtube_logo.png':
 	st.session_state.audio_file_empty = ''
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
-	
+
 	st.session_state.transcript_youtube_button = st.button(
 		label="Transcript",
 		type="primary",
