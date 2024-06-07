@@ -480,7 +480,8 @@ def save_file_and_display(file_obj):
 
 from st_audiorec import st_audiorec
 def record_and_display():
-	wav_audio_data = st_audiorec()
+	with st.container(border=True):
+		wav_audio_data = st_audiorec()
 
 	output_path = 'record_audios_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
@@ -719,6 +720,7 @@ elif img == 'upload_logo.png':
 elif img == 'record_logo.png':
 	record_and_display()
 	if st.session_state.record_audio_data:
+		logger.info(f"record audio: {st.session_state.record_audio_data}")
 		st.audio(st.session_state.record_audio_data, format='audio/wav')
 	st.session_state.transcript_record_button = st.button(
 		label="Transcript",
