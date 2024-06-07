@@ -468,6 +468,7 @@ def save_file_and_display(file_obj):
 	output_path = 'upload_audios_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
 	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
 
 	output_file_path = os.path.join(output_path,base_name)
 	
@@ -486,6 +487,7 @@ def record_and_display():
 	output_path = 'record_audios_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
 	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
 
 	output_file_path = os.path.join(output_path,"record_audio.mp3")
 	
