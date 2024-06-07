@@ -488,17 +488,18 @@ def record_and_display():
 	with st.container(border=True):
 		wav_audio_data = st_audiorec()
 
-	output_path = 'record_audios'
-	# remove directory if exists 
-	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
-	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
+		output_path = 'record_audios'
+		# remove directory if exists 
+		rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+		mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
 
-	output_file_path = os.path.join(output_path,"record_audio.mp3")
-	
-	if wav_audio_data is not None:
-		st.session_state.record_audio_data = wav_audio_data
-		with open(output_file_path,'wb') as f:
-			f.write(wav_audio_data)
+		output_file_path = os.path.join(output_path,"record_audio.mp3")
+		
+		if wav_audio_data is not None:
+			st.session_state.record_audio_data = wav_audio_data
+			with open(output_file_path,'wb') as f:
+				f.write(st.session_state.record_audio_data)
+		
 		st.session_state.audio_file = output_file_path
 
 
