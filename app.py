@@ -517,7 +517,6 @@ def transcript_youtube(youtube_url):
 	elif youtube_url:
 		logger.info(f"youtube url:{youtube_url}")
 		st.session_state.youtube_url = youtube_url
-		st.session_state.trans_type = 'youtube_url'
 		if st.session_state.get('user_info', {}):
 			user_name = st.session_state.user_info['name']
 			email = st.session_state.user_info['email']
@@ -544,28 +543,28 @@ def transcript_audio_file(audio_file):
 	st.session_state.quota_limit = ''
 
 	st.markdown("---")
-	placeholder = st.empty()
-	placeholder.text("Checking...")
 
-	mime_type, _ = mimetypes.guess_type(audio_file)
-	if mime_type.startswith("video"):
-		audio_length = get_video_duration(audio_file)
-	if mime_type.startswith('audio'):
-		audio_length = get_audio_duration(audio_file)
-	st.session_state.audio_length = audio_length
 
 	if not audio_file:
 		st.session_state.audio_file_empty = 'Please upload your audio file or record audio.'
 		return
 	elif audio_file:
-		logger.info(f"audio file:{audio_file}")
-		st.session_state.trans_type = 'audio_file'
 		if st.session_state.get('user_info', {}):
+
+
+			logger.info(f"audio file:{audio_file}")
+
 			user_name = st.session_state.user_info['name']
 			email = st.session_state.user_info['email']
 			if is_user_valid(email):
-				placeholder.empty()
 				st.markdown("Transcription task submitted!")
+				mime_type, _ = mimetypes.guess_type(audio_file)
+				if mime_type.startswith("video"):
+					audio_length = get_video_duration(audio_file)
+				if mime_type.startswith('audio'):
+					audio_length = get_audio_duration(audio_file)
+				st.session_state.audio_length = audio_length
+
 				update_kg_transcript_model(transcript_model)
 				# transcript uploaded audio file
 				wrap_transcript_audio(audio_file)
@@ -707,6 +706,8 @@ img = image_select(
 
 if img == 'youtube_logo.png':
 	st.session_state.audio_file_empty = ''
+	st.session_state.trans_type = 'youtube_url'
+
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
 
 	st.session_state.transcript_youtube_button = st.button(
@@ -717,6 +718,7 @@ if img == 'youtube_logo.png':
 		args=[youtube_url]
 		)
 elif img == 'upload_logo.png':
+	st.session_state.trans_type = 'upload_file'
 	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file")
 	if uploaded_file:
@@ -734,6 +736,7 @@ elif img == 'upload_logo.png':
 		args=[st.session_state.audio_file]
 		)
 elif img == 'record_logo.png':
+	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
 	record_and_display()
 	# if st.session_state.record_audio_data:
