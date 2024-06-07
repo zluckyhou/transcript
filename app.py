@@ -578,6 +578,8 @@ if "youtube_notebook_output" not in st.session_state:
 	st.session_state.youtube_notebook_output = ''
 if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
+if "youtube_url" not in st.session_state:
+	st.session_state.youtube_url = ''
 if "audio_file" not in st.session_state:
 	st.session_state.audio_file = ''
 if "video_length" not in st.session_state:
@@ -743,17 +745,22 @@ notebook_save_output_spinner_placeholder = st.empty()
 
 
 
+if st.session_state.quota_limit:
+	st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
+
 
 if st.session_state.youtube_url_error:
 	st.warning(st.session_state.youtube_url_error,icon=":material/warning:")
-if st.session_state.quota_limit:
-	st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
-if st.session_state.transcript_youtube_button and not st.session_state.user_info:
+if st.session_state.audio_file_empty:
+	st.warning(st.session_state.audio_file_empty)
+
+
+if st.session_state.transcript_youtube_button and st.session_state.youtube_url and not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
-if st.session_state.transcript_audio_button and st.session_state.audio_file_empty:
-	st.warning(st.session_state.audio_file_empty)
-if st.session_state.transcript_record_button and st.session_state.audio_file_empty:
-	st.warning(st.session_state.audio_file_empty)
+if st.session_state.transcript_audio_button and st.session_state.audio_file and not st.session_state.user_info:
+	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
+if st.session_state.transcript_record_button and st.session_state.record_audio_file and not st.session_state.user_info:
+	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 
 
 
