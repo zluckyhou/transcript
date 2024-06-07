@@ -204,7 +204,7 @@ def check_kernel_status_youtube(notebook, interval=5):
 
 def check_kernel_status_transcript(notebook, interval=5):
 	# 预估总时长
-	estimate_time = 40 + st.session_state.video_length / 15
+	estimate_time = 40 + st.session_state.audio_length / 15
 	elapsed_time = 0
 	with notebook_running_spinner_placeholder:
 		with st.spinner("WhisperFlow is now actively transcribing your audio/video."):
@@ -365,9 +365,6 @@ def update_kg_transcript_model(transcript_model):
 			check_dataset_status(dataset)
 
 
-
-
-
 def progress_function(stream, chunk, bytes_remaining):
 	total_size = stream.filesize
 	bytes_downloaded = total_size - bytes_remaining
@@ -381,7 +378,7 @@ def youtube_download(video_url, download_path):
 
 		# 获取视频标题
 		video_title = yt.title
-		video_length = yt.length
+		audio_length = yt.length
 		print(f"Downloading video: {video_title}")
 
 		stream = yt.streams.get_highest_resolution()
@@ -391,7 +388,7 @@ def youtube_download(video_url, download_path):
 		# 下载视频到指定目录
 		stream.download(output_path=download_path, filename=default_filename)
 
-		return os.path.join(download_path, default_filename),video_length
+		return os.path.join(download_path, default_filename),audio_length
 	except Exception as e:
 		logger.error(f"youtube download error: {e}")
 
@@ -413,6 +410,14 @@ def get_video_duration(file_path):
 		print(f"An error occurred: {e}")
 		return None
 
+from pydub import AudioSegment
+
+def get_audio_duration(file_path):
+    audio = AudioSegment.from_file(file_path)
+    duration_in_seconds = len(audio) / 1000  # pydub works in milliseconds
+    return duration_in_seconds
+
+
 
 def wrap_download_youtube(youtube_url):
 	dataset_url = 'zluckyhou/youtube-url'
@@ -425,11 +430,10 @@ def wrap_download_youtube(youtube_url):
 	kg_notebook_run_youtube(notebook_name_youtu,kg_notebook_dir_youtu,kg_notebook_output_dir_youtu)
 	video_name = [file for file in os.listdir(kg_notebook_output_dir_youtu) if file.endswith('.mp4')][0]
 	youtube_video = os.path.join(kg_notebook_output_dir_youtu,video_name)
-	video_length = get_video_duration(youtube_video)
+	
 	logger.info(f"youtube video: {youtube_video}")
-
 	st.session_state.youtube_video = youtube_video
-	st.session_state.video_length = video_length
+
 
 def wrap_transcript_audio(audio_file):
 	# use audio-transcript-forapi to transcript
@@ -465,7 +469,7 @@ def wrap_transcript_audio(audio_file):
 def save_file_and_display(file_obj):
 	base_name = remove_non_ascii(os.path.basename(file_obj.name))
 	mime_type, _ = mimetypes.guess_type(base_name)
-	output_path = 'upload_audios_' + st.session_state.user_info.get('name','unknown')
+	output_path = 'audio_files_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
 	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
 	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
@@ -476,8 +480,8 @@ def save_file_and_display(file_obj):
 	with open(output_file_path,'wb') as f:
 		f.write(bytes_data)
 
-	st.session_state.upload_audio = output_file_path
-	st.session_state.upload_audio_type = mime_type
+	st.session_state.audio_file = output_file_path
+	st.session_state.audio_file_type = mime_type
 
 from st_audiorec import st_audiorec
 def record_and_display():
@@ -495,7 +499,7 @@ def record_and_display():
 		st.session_state.record_audio_data = wav_audio_data
 		with open(output_file_path,'wb') as f:
 			f.write(wav_audio_data)
-		st.session_state.record_audio_file = output_file_path
+		st.session_state.audio_file = output_file_path
 
 
 def transcript_youtube(youtube_url):
@@ -540,6 +544,15 @@ def transcript_audio_file(audio_file):
 	st.session_state.quota_limit = ''
 
 	st.markdown("---")
+	placeholder = st.empty()
+	placeholder.text("Checking...")
+
+	mime_type, _ = mimetypes.guess_type(audio_file)
+	if mime_type.startswith("video"):
+		audio_length = get_video_duration(audio_file)
+	if mime_type.startswith('audio'):
+		audio_length = get_audio_duration(audio_file)
+	st.session_state.audio_length = audio_length
 
 	if not audio_file:
 		st.session_state.audio_file_empty = 'Please upload your audio file or record audio.'
@@ -551,6 +564,8 @@ def transcript_audio_file(audio_file):
 			user_name = st.session_state.user_info['name']
 			email = st.session_state.user_info['email']
 			if is_user_valid(email):
+				placeholder.empty()
+				st.markdown("Transcription task submitted!")
 				update_kg_transcript_model(transcript_model)
 				# transcript uploaded audio file
 				wrap_transcript_audio(audio_file)
@@ -580,10 +595,9 @@ if "youtube_video" not in st.session_state:
 	st.session_state.youtube_video = ''
 if "youtube_url" not in st.session_state:
 	st.session_state.youtube_url = ''
-if "audio_file" not in st.session_state:
-	st.session_state.audio_file = ''
-if "video_length" not in st.session_state:
-	st.session_state.video_length = None
+
+if "audio_length" not in st.session_state:
+	st.session_state.audio_length = None
 if "srt_file_url" not in st.session_state:
 	st.session_state.srt_file_url = ''
 if "txt_file_url" not in st.session_state:
@@ -605,15 +619,12 @@ if "youtube_url_error" not in st.session_state:
 if "trans_type" not in st.session_state:
 	st.session_state.trans_type = ''
 
-
-if "upload_audio" not in st.session_state:
-	st.session_state.upload_audio = ''
-if "upload_audio_type" not in st.session_state:
-	st.session_state.upload_audio_type = ''
+if "audio_file" not in st.session_state:
+	st.session_state.audio_file = ''
+if "audio_file_type" not in st.session_state:
+	st.session_state.audio_file_type = ''
 if "audio_file_empty" not in st.session_state:
 	st.session_state.audio_file_empty = ''
-if "record_audio_file" not in st.session_state:
-	st.session_state.record_audio_file = ''
 if "record_audio_data" not in st.session_state:
 	st.session_state.record_audio_data = ''
 
@@ -697,7 +708,7 @@ img = image_select(
 if img == 'youtube_logo.png':
 	st.session_state.audio_file_empty = ''
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
-
+	
 	st.session_state.transcript_youtube_button = st.button(
 		label="Transcript",
 		type="primary",
@@ -707,20 +718,20 @@ if img == 'youtube_logo.png':
 		)
 elif img == 'upload_logo.png':
 	st.session_state.youtube_url_error = ''
-	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
+	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file")
 	if uploaded_file:
 		save_file_and_display(uploaded_file)
-	if st.session_state.upload_audio_type.startswith('audio'):
-		st.audio(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
-	if st.session_state.upload_audio_type.startswith('video'):
-		st.video(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
+	if st.session_state.audio_file_type.startswith('audio'):
+		st.audio(st.session_state.audio_file,format=st.session_state.audio_file_type)
+	if st.session_state.audio_file_type.startswith('video'):
+		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
 	st.session_state.transcript_audio_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_audio",
 		on_click=transcript_audio_file,
-		args=[st.session_state.upload_audio]
+		args=[st.session_state.audio_file]
 		)
 elif img == 'record_logo.png':
 	st.session_state.youtube_url_error = ''
@@ -733,7 +744,7 @@ elif img == 'record_logo.png':
 		type="primary",
 		key="transcript_record",
 		on_click=transcript_audio_file,
-		args=[st.session_state.record_audio_file]
+		args=[st.session_state.audio_file]
 		)
 
 
@@ -762,7 +773,7 @@ if st.session_state.transcript_youtube_button and st.session_state.youtube_url a
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 if st.session_state.transcript_audio_button and st.session_state.audio_file and not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
-if st.session_state.transcript_record_button and st.session_state.record_audio_file and not st.session_state.user_info:
+if st.session_state.transcript_record_button and st.session_state.audio_file and not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 
 
@@ -778,14 +789,14 @@ if st.session_state.status == 'success':
 
 	msg = {
 	"type":st.session_state.trans_type,
-	"url":youtube_url,
+	"url":st.session_state.youtube_url,
 	"srt":st.session_state.srt_file_url,
 	"txt":st.session_state.txt_file_url,
 	"user_name":st.session_state.user_info.get('name',''),
 	"email":st.session_state.user_info.get('email',''),
 	"status":st.session_state.status,
 	"memo":st.session_state.memo,
-	"audio_file":st.session_state.upload_audio
+	"audio_file":st.session_state.audio_file
 	}
 
 	supabase_insert_message(table='transcript_messages',message=msg)
