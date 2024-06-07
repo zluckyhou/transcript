@@ -687,7 +687,7 @@ img = image_select(
         "upload_logo.png",
         "record_logo.png"
     ],
-    captions=["YouTube Link", "Upload File"],
+    captions=["YouTube Link", "Upload File","Record Audio"],
 )
 
 if img == 'youtube_logo.png':
