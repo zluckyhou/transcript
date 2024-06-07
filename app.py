@@ -490,9 +490,9 @@ def record_and_display():
 	
 	if wav_audio_data is not None:
 		st.session_state.record_audio_data = wav_audio_data
-	with open(output_file_path,'wb') as f:
-		f.write(wav_audio_data)
-	st.session_state.record_audio_file = output_file_path
+		with open(output_file_path,'wb') as f:
+			f.write(wav_audio_data)
+		st.session_state.record_audio_file = output_file_path
 
 
 
