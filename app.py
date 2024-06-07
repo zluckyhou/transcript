@@ -465,8 +465,10 @@ def wrap_transcript_audio(audio_file):
 def save_file_and_display(file_obj):
 	base_name = remove_non_ascii(os.path.basename(file_obj.name))
 	mime_type, _ = mimetypes.guess_type(base_name)
+	output_path = 'upload_audios_' + st.session_state.user_info.get('name','unknown')
+	# remove directory if exists 
+	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
 
-	output_path = 'audios_' + st.session_state.user_info.get('name','unknown')
 	output_file_path = os.path.join(output_path,base_name)
 	
 	bytes_data = file_obj.getvalue()
@@ -475,6 +477,22 @@ def save_file_and_display(file_obj):
 
 	st.session_state.upload_audio = output_file_path
 	st.session_state.upload_audio_type = mime_type
+
+from st_audiorec import st_audiorec
+def record_and_display():
+	wav_audio_data = st_audiorec()
+
+	output_path = 'record_audios_' + st.session_state.user_info.get('name','unknown')
+	# remove directory if exists 
+	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+
+	output_file_path = os.path.join(output_path,"record_audio.mp3")
+	
+	if wav_audio_data is not None:
+		st.session_state.record_audio_data = wav_audio_data
+	with open(output_file_path,'wb') as f:
+		f.write(wav_audio_data)
+	st.session_state.record_audio_file = output_file_path
 
 
 
@@ -522,7 +540,7 @@ def transcript_audio_file(audio_file):
 	st.markdown("---")
 
 	if not audio_file:
-		st.session_state.audio_file_empty = 'Please upload your audio file'
+		st.session_state.audio_file_empty = 'Please upload your audio file or record audio.'
 		return
 	elif audio_file:
 		logger.info(f"audio file:{audio_file}")
@@ -590,10 +608,18 @@ if "upload_audio_type" not in st.session_state:
 	st.session_state.upload_audio_type = ''
 if "audio_file_empty" not in st.session_state:
 	st.session_state.audio_file_empty = ''
+if "record_audio_file" not in st.session_state:
+	st.session_state.record_audio_file = ''
+if "record_audio_data" not in st.session_state:
+	st.session_state.record_audio_data = ''
+
 if "transcript_audio_button" not in st.session_state:
 	st.session_state.transcript_audio_button = ''
 if "transcript_youtube_button" not in st.session_state:
 	st.session_state.transcript_youtube_button = ''
+if "transcript_record_button" not in st.session_state:
+	st.session_state.transcript_record_button = ''
+
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
@@ -659,6 +685,7 @@ img = image_select(
     images=[
         "youtube_logo.png",
         "upload_logo.png",
+        "record_logo.png"
     ],
     captions=["YouTube Link", "Upload File"],
 )
@@ -666,14 +693,13 @@ img = image_select(
 if img == 'youtube_logo.png':
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
 
-	transcript_youtube_button = st.button(
+	st.session_state.transcript_youtube_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_youtube",
 		on_click=transcript_youtube,
 		args=[youtube_url]
 		)
-	st.session_state.transcript_youtube_button = transcript_youtube_button
 elif img == 'upload_logo.png':
 	uploaded_file = st.file_uploader("Upload audio/video", key="upload_audio")
 	if uploaded_file:
@@ -683,15 +709,24 @@ elif img == 'upload_logo.png':
 	if st.session_state.upload_audio_type.startswith('video'):
 		st.video(st.session_state.upload_audio,format=st.session_state.upload_audio_type)
 	
-	transcript_audio_button = st.button(
+	st.session_state.transcript_audio_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_audio",
 		on_click=transcript_audio_file,
 		args=[st.session_state.upload_audio]
 		)
-	st.session_state.transcript_audio_button = transcript_audio_button
-
+elif img == 'record_logo.png':
+	record_and_display()
+	if st.session_state.record_audio_data:
+		st.audio(st.session_state.record_audio_data, format='audio/wav')
+	st.session_state.transcript_record_button = st.button(
+		label="Transcript",
+		type="primary",
+		key="transcript_record",
+		on_click=transcript_audio_file,
+		args=[st.session_state.record_audio_file]
+		)
 
 
 
@@ -714,6 +749,9 @@ if st.session_state.transcript_youtube_button and not st.session_state.user_info
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 if st.session_state.transcript_audio_button and st.session_state.audio_file_empty:
 	st.warning(st.session_state.audio_file_empty)
+if st.session_state.transcript_record_button and st.session_state.audio_file_empty:
+	st.warning(st.session_state.audio_file_empty)
+
 
 
 if st.session_state.youtube_video:
