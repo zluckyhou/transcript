@@ -495,11 +495,11 @@ def record_and_display():
 
 		output_file_path = os.path.join(output_path,"record_audio.mp3")
 		
+		logger.debug(f"record data: {wav_audio_data}")
 		if wav_audio_data is not None:
 			st.session_state.record_audio_data = wav_audio_data
 			with open(output_file_path,'wb') as f:
-				f.write(st.session_state.record_audio_data)
-		
+				f.write(st.session_state.record_audio_data)		
 		st.session_state.audio_file = output_file_path
 
 
