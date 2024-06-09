@@ -786,7 +786,7 @@ if st.session_state.status == 'error':
 
 
 
-if st.session_state.memo:
+if (transcript_youtube_button or transcript_audio_button or transcript_record_button) and st.session_state.status:
 	msg = {
 	"type":st.session_state.trans_type,
 	"url":st.session_state.youtube_url,
