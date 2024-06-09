@@ -626,8 +626,6 @@ if "audio_file" not in st.session_state:
 	st.session_state.audio_file = ''
 if "audio_file_type" not in st.session_state:
 	st.session_state.audio_file_type = ''
-if "audio_file_empty" not in st.session_state:
-	st.session_state.audio_file_empty = ''
 if "record_audio_data" not in st.session_state:
 	st.session_state.record_audio_data = ''
 
@@ -702,7 +700,6 @@ img = image_select(
 )
 
 if img == 'youtube_logo.png':
-	st.session_state.audio_file_empty = ''
 	st.session_state.trans_type = 'youtube_url'
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
@@ -725,7 +722,7 @@ if img == 'youtube_logo.png':
 elif img == 'upload_logo.png':
 	st.session_state.trans_type = 'upload_file'
 	st.session_state.youtube_url_error = ''
-	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
+	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
 	if uploaded_file:
 		logger.debug(f"upload_file:{uploaded_file}")
 		save_uploaded_audio(uploaded_file)
