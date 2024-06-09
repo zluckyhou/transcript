@@ -748,8 +748,8 @@ elif img == 'upload_logo.png':
 elif img == 'record_logo.png':
 	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
-	record_and_save_audio()
 	process_record_spinner_placeholder = st.empty()
+	record_and_save_audio()
 	if st.session_state.record_audio_data:
 		logger.info(f"record audio: {st.session_state.record_audio_data}")
 		st.audio(st.session_state.record_audio_data, format='audio/wav')
