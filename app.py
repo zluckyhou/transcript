@@ -498,7 +498,7 @@ def record_and_save_audio():
 		logger.debug(f"record data: {wav_audio_data}")
 		if wav_audio_data:
 			with process_record_spinner_placeholder:
-				with st.spinner("Processing record audio...")
+				with st.spinner("Processing record audio..."):
 					output_file_path = "record_audio.mp3"
 					st.session_state.record_audio_data = wav_audio_data
 					with open(output_file_path,'wb') as f:
