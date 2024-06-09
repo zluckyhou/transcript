@@ -631,13 +631,6 @@ if "audio_file_empty" not in st.session_state:
 if "record_audio_data" not in st.session_state:
 	st.session_state.record_audio_data = ''
 
-if "transcript_audio_button" not in st.session_state:
-	st.session_state.transcript_audio_button = ''
-if "transcript_youtube_button" not in st.session_state:
-	st.session_state.transcript_youtube_button = ''
-if "transcript_record_button" not in st.session_state:
-	st.session_state.transcript_record_button = ''
-
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
@@ -713,7 +706,7 @@ if img == 'youtube_logo.png':
 	st.session_state.trans_type = 'youtube_url'
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
-	st.session_state.transcript_youtube_button = st.button(
+	transcript_youtube_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_youtube",
@@ -734,13 +727,14 @@ elif img == 'upload_logo.png':
 	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
 	if uploaded_file is not None:
+		logger.debug(f"upload_file:{uploaded_file}")
 		save_uploaded_audio(uploaded_file)
 	if st.session_state.audio_file_type.startswith('audio'):
 		st.audio(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	if st.session_state.audio_file_type.startswith('video'):
 		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
-	st.session_state.transcript_audio_button = st.button(
+	transcript_audio_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_audio",
@@ -759,7 +753,7 @@ elif img == 'record_logo.png':
 	if st.session_state.record_audio_data:
 		logger.info(f"record audio: {st.session_state.record_audio_data}")
 		st.audio(st.session_state.record_audio_data, format='audio/wav')
-	st.session_state.transcript_record_button = st.button(
+	transcript_record_button = st.button(
 		label="Transcript",
 		type="primary",
 		key="transcript_record",
