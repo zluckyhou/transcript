@@ -726,7 +726,7 @@ elif img == 'upload_logo.png':
 	st.session_state.trans_type = 'upload_file'
 	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
-	if uploaded_file is not None:
+	if uploaded_file:
 		logger.debug(f"upload_file:{uploaded_file}")
 		save_uploaded_audio(uploaded_file)
 	if st.session_state.audio_file_type.startswith('audio'):
