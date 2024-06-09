@@ -496,7 +496,7 @@ def record_and_save_audio():
 		# output_file_path = os.path.join(output_path,"record_audio.mp3")
 
 		logger.debug(f"record data: {wav_audio_data}")
-		if wav_audio_data is not None:
+		if wav_audio_data:
 			output_file_path = "record_audio.mp3"
 			st.session_state.record_audio_data = wav_audio_data
 			with open(output_file_path,'wb') as f:
