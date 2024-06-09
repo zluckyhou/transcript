@@ -497,11 +497,13 @@ def record_and_save_audio():
 
 		logger.debug(f"record data: {wav_audio_data}")
 		if wav_audio_data:
-			output_file_path = "record_audio.mp3"
-			st.session_state.record_audio_data = wav_audio_data
-			with open(output_file_path,'wb') as f:
-				f.write(st.session_state.record_audio_data)		
-			st.session_state.audio_file = output_file_path
+			with process_record_spinner_placeholder:
+				with st.spinner("Processing record audio...")
+					output_file_path = "record_audio.mp3"
+					st.session_state.record_audio_data = wav_audio_data
+					with open(output_file_path,'wb') as f:
+						f.write(st.session_state.record_audio_data)		
+					st.session_state.audio_file = output_file_path
 
 
 
@@ -747,6 +749,7 @@ elif img == 'record_logo.png':
 	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
 	record_and_save_audio()
+	process_record_spinner_placeholder = st.empty()
 	if st.session_state.record_audio_data:
 		logger.info(f"record audio: {st.session_state.record_audio_data}")
 		st.audio(st.session_state.record_audio_data, format='audio/wav')
@@ -759,7 +762,8 @@ elif img == 'record_logo.png':
 		disabled = not st.session_state.audio_file
 		)
 	st.markdown("---")
-
+	transcript_audiofile_spinner_placeholder = st.empty()
+	login_tip_spinner_placeholder = st.empty()
 
 
 notebook_model_initialize_placeholder = st.empty()
