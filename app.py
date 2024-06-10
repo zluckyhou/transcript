@@ -691,17 +691,28 @@ st.markdown(" The lightning-fast, AI-powered audio and video transcription solut
 
 from streamlit_image_select import image_select
 
-img = image_select(
-    label="Select Audio Source",
-    images=[
-        "youtube_logo.png",
-        "record_logo.png",
-        "upload_logo.png"
-    ],
-    captions=["YouTube Link", "Record Audio", "Upload File"],
-)
+# img = image_select(
+#     label="Select Audio Source",
+#     images=[
+#         "youtube_logo.png",
+#         "record_logo.png",
+#         "upload_logo.png"
+#     ],
+#     captions=["YouTube Link", "Record Audio", "Upload File"],
+# )
 
-if img == 'youtube_logo.png':
+col1, col2, col3 = st.columns(3)
+with col1:
+	youtu_button = st.button("From Youtube url")
+with col2:
+	record_button = st.button("Record Audio")
+with col3:
+	upload_button = st.button("Upload File")
+
+
+
+# if img == 'youtube_logo.png':
+if youtu_button:
 	st.session_state.trans_type = 'youtube_url'
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
@@ -721,7 +732,8 @@ if img == 'youtube_logo.png':
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video)
 
-elif img == 'upload_logo.png':
+# elif img == 'upload_logo.png':
+if upload_button:
 	st.session_state.trans_type = 'upload_file'
 	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
@@ -745,7 +757,8 @@ elif img == 'upload_logo.png':
 	transcript_audiofile_spinner_placeholder = st.empty()
 	login_tip_container = st.container()
 
-elif img == 'record_logo.png':
+# elif img == 'record_logo.png':
+if record_button:
 	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
 	process_record_spinner_placeholder = st.empty()
