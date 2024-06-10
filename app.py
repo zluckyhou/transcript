@@ -587,6 +587,22 @@ def transcript_audio_file(audio_file):
 			st.session_state.memo = 'not login'
 			st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 
+def update_message():
+	msg = {
+	"type":st.session_state.trans_type,
+	"url":st.session_state.youtube_url,
+	"srt":st.session_state.srt_file_url,
+	"txt":st.session_state.txt_file_url,
+	"user_name":st.session_state.user_info.get('name',''),
+	"email":st.session_state.user_info.get('email',''),
+	"status":st.session_state.status,
+	"memo":st.session_state.memo,
+	"audio_file":st.session_state.audio_file
+	}
+
+	supabase_insert_message(table='transcript_messages',message=msg)
+
+
 
 if "notebook_status" not in st.session_state:
 	st.session_state.notebook_status = 'preparing' 
@@ -731,6 +747,8 @@ if youtu_button:
 	if st.session_state.youtube_video:
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video)
+	if transcript_youtube_button and st.session_state.status:
+		update_message()
 
 # elif img == 'upload_logo.png':
 if upload_button:
@@ -756,6 +774,8 @@ if upload_button:
 	st.markdown("---")
 	transcript_audiofile_spinner_placeholder = st.empty()
 	login_tip_container = st.container()
+	if transcript_audio_button and st.session_state.status:
+		update_message()
 
 # elif img == 'record_logo.png':
 if record_button:
@@ -777,7 +797,8 @@ if record_button:
 	st.markdown("---")
 	transcript_audiofile_spinner_placeholder = st.empty()
 	login_tip_container = st.container()
-
+	if transcript_record_button and st.session_state.status:
+		update_message()
 
 notebook_model_initialize_placeholder = st.empty()
 notebook_update_youtube_url_spinner_placeholder = st.empty()
@@ -796,22 +817,4 @@ if st.session_state.status == 'success':
 
 if st.session_state.status == 'error':
 	st.error("Opps,something went wrong!",icon="🔥")
-
-
-
-if (transcript_youtube_button or transcript_audio_button or transcript_record_button) and st.session_state.status:
-	msg = {
-	"type":st.session_state.trans_type,
-	"url":st.session_state.youtube_url,
-	"srt":st.session_state.srt_file_url,
-	"txt":st.session_state.txt_file_url,
-	"user_name":st.session_state.user_info.get('name',''),
-	"email":st.session_state.user_info.get('email',''),
-	"status":st.session_state.status,
-	"memo":st.session_state.memo,
-	"audio_file":st.session_state.audio_file
-	}
-
-	supabase_insert_message(table='transcript_messages',message=msg)
-
 
