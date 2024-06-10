@@ -707,28 +707,28 @@ st.markdown(" The lightning-fast, AI-powered audio and video transcription solut
 
 from streamlit_image_select import image_select
 
-# img = image_select(
-#     label="Select Audio Source",
-#     images=[
-#         "youtube_logo.png",
-#         "record_logo.png",
-#         "upload_logo.png"
-#     ],
-#     captions=["YouTube Link", "Record Audio", "Upload File"],
-# )
+img = image_select(
+    label="Select Audio Source",
+    images=[
+        "youtube_logo.png",
+        "record_logo.png",
+        "upload_logo.png"
+    ],
+    captions=["YouTube Link", "Record Audio", "Upload File"],
+)
 
-col1, col2, col3 = st.columns(3)
-with col1:
-	youtu_button = st.button("From Youtube url")
-with col2:
-	record_button = st.button("Record Audio")
-with col3:
-	upload_button = st.button("Upload File")
+# col1, col2, col3 = st.columns(3)
+# with col1:
+# 	youtu_button = st.button("From Youtube url")
+# with col2:
+# 	record_button = st.button("Record Audio")
+# with col3:
+# 	upload_button = st.button("Upload File")
 
 
 
-# if img == 'youtube_logo.png':
-if youtu_button:
+if img == 'youtube_logo.png':
+# if youtu_button:
 	st.session_state.trans_type = 'youtube_url'
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
@@ -750,8 +750,8 @@ if youtu_button:
 	if transcript_youtube_button and st.session_state.status:
 		update_message()
 
-# elif img == 'upload_logo.png':
-if upload_button:
+elif img == 'upload_logo.png':
+# if upload_button:
 	st.session_state.trans_type = 'upload_file'
 	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
@@ -777,8 +777,8 @@ if upload_button:
 	if transcript_audio_button and st.session_state.status:
 		update_message()
 
-# elif img == 'record_logo.png':
-if record_button:
+elif img == 'record_logo.png':
+# if record_button:
 	st.session_state.trans_type = 'record_audio'
 	st.session_state.youtube_url_error = ''
 	process_record_spinner_placeholder = st.empty()
