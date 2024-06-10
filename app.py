@@ -519,7 +519,7 @@ def transcript_youtube(youtube_url):
 	st.session_state.youtube_url = youtube_url
 	if st.session_state.get('user_info', {}):
 		with transcript_youtube_spinner_placeholder:
-			with spinner("Transcription task submited!"):
+			with st.spinner("Transcription task submited!"):
 				user_name = st.session_state.user_info['name']
 				email = st.session_state.user_info['email']
 				if is_user_valid(email):
