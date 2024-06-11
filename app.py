@@ -705,10 +705,10 @@ with st.sidebar:
 			st.session_state.user_info = user_info  # 保存用户信息到 session
 			st.rerun()  # 重新运行应用以更新状态
 	st.divider()
-	transcript_model = st.selectbox("Transcript model",("medium","large-v2","large-v3"))
+	transcript_model = st.selectbox("Transcript model",["medium","large-v2","large-v3"])
 
-st.sidebar.divider()
-st.sidebar.markdown('If you have any questions or need assistance, please feel free to contact me via [email](mailto:hou0922@gmail.com)')
+# st.sidebar.divider()
+# st.sidebar.markdown('If you have any questions or need assistance, please feel free to contact me via [email](mailto:hou0922@gmail.com)')
 
 
 
