@@ -569,11 +569,13 @@ def transcript_audio_file(audio_file):
 					try:
 						# st.markdown("Transcription task submitted!")
 						mime_type, _ = mimetypes.guess_type(audio_file)
+						logger.debug(f"mime type: {mime_type}")
 						if mime_type.startswith("video"):
 							audio_length = get_video_duration(audio_file)
 						if mime_type.startswith('audio'):
 							audio_length = get_audio_duration(audio_file)
 						st.session_state.audio_length = audio_length
+						logger.debug(f"audio length: {audio_length}")
 
 						update_kg_transcript_model(transcript_model)
 						# transcript uploaded audio file
