@@ -515,7 +515,10 @@ def transcript_youtube(youtube_url):
 	st.session_state.youtube_video = ''
 	st.session_state.srt_file = ''
 	st.session_state.quota_limit = ''
-
+	if not youtube_url:
+		with empty_url_container:
+			st.warning("Please paste a YouTube URL")
+		return
 	logger.info(f"youtube url:{youtube_url}")
 	st.session_state.youtube_url = youtube_url
 	if st.session_state.get('user_info', {}):
@@ -553,7 +556,10 @@ def transcript_audio_file(audio_file):
 	st.session_state.srt_file = ''
 	st.session_state.notebook_status = ''
 	st.session_state.quota_limit = ''
-
+	if not audio_file:
+		with empty_file_container:
+			st.warning("Please select a file to upload.")
+		return
 	logger.info(f"audio file:{audio_file}")
 	if st.session_state.get('user_info', {}):
 		with transcript_audiofile_spinner_placeholder:
@@ -737,24 +743,20 @@ if img == 'youtube_logo.png':
 		label="Transcript",
 		type="primary",
 		key="transcript_youtube",
-		# on_click=transcript_youtube,
-		# args=[youtube_url],
-		# disabled= not youtube_url
+		on_click=transcript_youtube,
+		args=[youtube_url],
 		)
-	if transcript_youtube_button:
-		if not youtube_url:
-			st.warning("Please paste a YouTube URL")
-		else:
-			transcript_youtube(youtube_url)
-			st.markdown("---")
-			transcript_youtube_spinner_placeholder = st.empty()
-			login_tip_container = st.container()
-			youtube_video_placeholder = st.empty()
-			if st.session_state.youtube_video:
-				with youtube_video_placeholder:
-					st.video(st.session_state.youtube_video)
-			if st.session_state.status:
-				update_message()
+	# transcript_youtube(youtube_url)
+	st.markdown("---")
+	empty_url_container = st.container()
+	transcript_youtube_spinner_placeholder = st.empty()
+	login_tip_container = st.container()
+	youtube_video_placeholder = st.empty()
+	if st.session_state.youtube_video:
+		with youtube_video_placeholder:
+			st.video(st.session_state.youtube_video)
+	if transcript_youtube_button and st.session_state.status:
+		update_message()
 
 elif img == 'upload_logo.png':
 # if upload_button:
@@ -773,20 +775,18 @@ elif img == 'upload_logo.png':
 		label="Transcript",
 		type="primary",
 		key="transcript_audio",
-		# on_click=transcript_audio_file,
-		# args=[st.session_state.audio_file],
+		on_click=transcript_audio_file,
+		args=[st.session_state.audio_file],
 		# disabled = not st.session_state.audio_file
 		)
-	if transcript_audio_button:
-		if not uploaded_file:
-			st.warning("Please select a file to upload.")
-		else:
-			transcript_audio_file(st.session_state.audio_file)
-			st.markdown("---")
-			transcript_audiofile_spinner_placeholder = st.empty()
-			login_tip_container = st.container()
-			if st.session_state.status:
-				update_message()
+
+	# transcript_audio_file(st.session_state.audio_file)
+	st.markdown("---")
+	empty_file_container = st.container()
+	transcript_audiofile_spinner_placeholder = st.empty()
+	login_tip_container = st.container()
+	if transcript_audio_button and st.session_state.status:
+		update_message()
 
 # elif img == 'record_logo.png':
 # # if record_button:
