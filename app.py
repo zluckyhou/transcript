@@ -712,10 +712,10 @@ img = image_select(
     label="Select Audio Source",
     images=[
         "youtube_logo.png",
-        "record_logo.png",
+        # "record_logo.png",
         "upload_logo.png"
     ],
-    captions=["YouTube Link", "Record Audio", "Upload File"],
+    captions=["YouTube Link", "Upload File"],
 )
 
 # col1, col2, col3 = st.columns(3)
@@ -755,6 +755,7 @@ elif img == 'upload_logo.png':
 # if upload_button:
 	st.session_state.trans_type = 'upload_file'
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
+	st.markdown("Need audio? You can easily record it using [vocaroo](https://vocaroo.com/).")
 	if uploaded_file:
 		logger.debug(f"upload_file:{uploaded_file}")
 		save_uploaded_audio(uploaded_file)
@@ -777,27 +778,27 @@ elif img == 'upload_logo.png':
 	if transcript_audio_button and st.session_state.status:
 		update_message()
 
-elif img == 'record_logo.png':
-# if record_button:
-	st.session_state.trans_type = 'record_audio'
-	process_record_spinner_placeholder = st.empty()
-	record_and_save_audio()
-	if st.session_state.record_audio_data:
-		logger.info(f"record audio: {st.session_state.record_audio_data}")
-		st.audio(st.session_state.record_audio_data, format='audio/wav')
-	transcript_record_button = st.button(
-		label="Transcript",
-		type="primary",
-		key="transcript_record",
-		on_click=transcript_audio_file,
-		args=[st.session_state.audio_file],
-		disabled = not st.session_state.audio_file
-		)
-	st.markdown("---")
-	transcript_audiofile_spinner_placeholder = st.empty()
-	login_tip_container = st.container()
-	if transcript_record_button and st.session_state.status:
-		update_message()
+# elif img == 'record_logo.png':
+# # if record_button:
+# 	st.session_state.trans_type = 'record_audio'
+# 	process_record_spinner_placeholder = st.empty()
+# 	record_and_save_audio()
+# 	if st.session_state.record_audio_data:
+# 		logger.info(f"record audio: {st.session_state.record_audio_data}")
+# 		st.audio(st.session_state.record_audio_data, format='audio/wav')
+# 	transcript_record_button = st.button(
+# 		label="Transcript",
+# 		type="primary",
+# 		key="transcript_record",
+# 		on_click=transcript_audio_file,
+# 		args=[st.session_state.audio_file],
+# 		disabled = not st.session_state.audio_file
+# 		)
+# 	st.markdown("---")
+# 	transcript_audiofile_spinner_placeholder = st.empty()
+# 	login_tip_container = st.container()
+# 	if transcript_record_button and st.session_state.status:
+# 		update_message()
 
 notebook_model_initialize_placeholder = st.empty()
 notebook_update_youtube_url_spinner_placeholder = st.empty()
