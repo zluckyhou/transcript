@@ -99,7 +99,7 @@ def remove_non_ascii(text):
 	return ''.join(c for c in text if ord(c) < 128)
 
 def upload_file_to_supabase_storage(file_path):
-	base_name = remove_non_ascii(os.path.basename(file_path))
+	base_name = remove_non_ascii(os.path.basename(file_path)).replace(' ', '_')
 	path_on_supastorage = os.path.splitext(base_name)[0] + '_' + str(round(time.time())//6000)  + os.path.splitext(base_name)[1]
 	mime_type, _ = mimetypes.guess_type(base_name)
 	
@@ -470,7 +470,7 @@ def wrap_transcript_audio(audio_file):
 		st.session_state.txt_file_url = txt_file_url
 
 def save_uploaded_audio(file_obj):
-	base_name = remove_non_ascii(os.path.basename(file_obj.name))
+	base_name = remove_non_ascii(os.path.basename(file_obj.name)).replace(' ', '_')
 	mime_type, _ = mimetypes.guess_type(base_name)
 	output_path = 'audio_files_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
@@ -758,6 +758,15 @@ if img == 'youtube_logo.png':
 	if transcript_youtube_button and st.session_state.status:
 		update_message()
 
+	if st.session_state.status == 'success':
+		if st.session_state.trans_type == 'youtube_url':
+			with youtube_video_placeholder:
+				st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
+		st.markdown("Transcription completed successfully!")
+		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
+
+
+
 elif img == 'upload_logo.png':
 # if upload_button:
 	st.session_state.trans_type = 'upload_file'
@@ -787,6 +796,11 @@ elif img == 'upload_logo.png':
 	login_tip_container = st.container()
 	if transcript_audio_button and st.session_state.status:
 		update_message()
+	if st.session_state.status == 'success':
+		st.markdown("Transcription completed successfully!")
+		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
+
+
 
 # elif img == 'record_logo.png':
 # # if record_button:
@@ -818,12 +832,6 @@ notebook_running_spinner_placeholder = st.empty()
 notebook_save_output_spinner_placeholder = st.empty()
 
 
-if st.session_state.status == 'success':
-	if st.session_state.trans_type == 'youtube_url':
-		with youtube_video_placeholder:
-			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
-	st.markdown("Transcription completed successfully!")
-	st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
 
 if st.session_state.status == 'error':
 	st.error("Opps,something went wrong!",icon="🔥")
