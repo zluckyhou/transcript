@@ -452,7 +452,8 @@ def wrap_transcript_audio(audio_file):
 	kg_notebook_dir = 'kg_notebook/'
 	kg_notebook_output_dir = 'kg_notebook_output'
 
-
+	logger.info("Give some time for notebook to refresh data")
+	time.sleep(5)
 	# run kaggle
 	kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
 
@@ -510,11 +511,9 @@ def record_and_save_audio():
 
 
 def transcript_youtube(youtube_url):
-
+	st.session_state.status = ''
 	st.session_state.youtube_video = ''
 	st.session_state.srt_file = ''
-	st.session_state.notebook_status = ''
-	st.session_state.youtube_url_error = ''
 	st.session_state.quota_limit = ''
 
 	logger.info(f"youtube url:{youtube_url}")
@@ -550,6 +549,7 @@ def transcript_youtube(youtube_url):
 
 
 def transcript_audio_file(audio_file):
+	st.session_state.status = ''
 	st.session_state.srt_file = ''
 	st.session_state.notebook_status = ''
 	st.session_state.quota_limit = ''
@@ -637,8 +637,7 @@ if 'quota_limit' not in st.session_state:
 	st.session_state.quota_limit = ''
 if "memo" not in st.session_state:
 	st.session_state.memo = ''
-if "youtube_url_error" not in st.session_state:
-	st.session_state.youtube_url_error = ''
+
 if "trans_type" not in st.session_state:
 	st.session_state.trans_type = ''
 
@@ -755,7 +754,6 @@ if img == 'youtube_logo.png':
 elif img == 'upload_logo.png':
 # if upload_button:
 	st.session_state.trans_type = 'upload_file'
-	st.session_state.youtube_url_error = ''
 	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
 	if uploaded_file:
 		logger.debug(f"upload_file:{uploaded_file}")
@@ -782,7 +780,6 @@ elif img == 'upload_logo.png':
 elif img == 'record_logo.png':
 # if record_button:
 	st.session_state.trans_type = 'record_audio'
-	st.session_state.youtube_url_error = ''
 	process_record_spinner_placeholder = st.empty()
 	record_and_save_audio()
 	if st.session_state.record_audio_data:
