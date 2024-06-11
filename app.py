@@ -433,7 +433,7 @@ def wrap_download_youtube(youtube_url):
 	
 	logger.info(f"youtube video: {youtube_video}")
 	st.session_state.youtube_video = youtube_video
-	audio_length = get_video_duration(audio_file)
+	audio_length = get_video_duration(youtube_video)
 	st.session_state.audio_length = audio_length
 
 
