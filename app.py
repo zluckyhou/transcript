@@ -745,7 +745,7 @@ if img == 'youtube_logo.png':
 # if youtu_button:
 	st.session_state.trans_type = 'youtube_url'
 
-	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.")
+	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.").strip()
 	transcript_youtube_button = st.button(
 		label="Transcript",
 		type="primary",
@@ -758,23 +758,6 @@ if img == 'youtube_logo.png':
 	empty_url_container = st.container()
 	transcript_youtube_spinner_placeholder = st.empty()
 	login_tip_container = st.empty()
-	youtube_video_placeholder = st.empty()
-	if st.session_state.youtube_video:
-		with youtube_video_placeholder:
-			st.video(st.session_state.youtube_video)
-		if transcript_youtube_button and st.session_state.status:
-			update_message()
-
-		if st.session_state.status == 'success':
-			with youtube_video_placeholder:
-				st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
-			st.markdown("Transcription completed successfully!")
-			st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
-			st.markdown("**Transcription Preview:**")
-			with open(st.session_state.txt_file) as f:
-				plain_transcript = f.read()
-
-			st.markdown(f"{plain_transcript[:200]}")
 
 
 elif img == 'upload_logo.png':
@@ -804,16 +787,6 @@ elif img == 'upload_logo.png':
 	empty_file_container = st.container()
 	transcript_audiofile_spinner_placeholder = st.empty()
 	login_tip_container = st.empty()
-	if transcript_audio_button and st.session_state.status:
-		update_message()
-	if st.session_state.status == 'success':
-		st.markdown("Transcription completed successfully!")
-		st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
-		st.markdown("**Transcription Preview:**")
-		with open(st.session_state.txt_file) as f:
-			plain_transcript = f.read()
-
-		st.markdown(f"{plain_transcript[:200]}")
 
 
 # elif img == 'record_logo.png':
@@ -838,12 +811,36 @@ elif img == 'upload_logo.png':
 # 	if transcript_record_button and st.session_state.status:
 # 		update_message()
 
+
+
+youtube_video_placeholder = st.empty()
+
+if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_video:
+	with youtube_video_placeholder:
+		st.video(st.session_state.youtube_video)
+
 notebook_model_initialize_placeholder = st.empty()
 notebook_update_youtube_url_spinner_placeholder = st.empty()
 notebook_data_spinner_placeholder = st.empty()
 notebook_pull_spinner_placeholder = st.empty()
 notebook_running_spinner_placeholder = st.empty()
 notebook_save_output_spinner_placeholder = st.empty()
+
+
+if st.session_state.status == 'success':
+	if st.session_state.trans_type == 'youtube_url':
+		with youtube_video_placeholder:
+			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
+	st.markdown("Transcription completed successfully!")
+	st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
+	st.markdown("**Transcription Preview:**")
+	with open(st.session_state.txt_file) as f:
+		plain_transcript = f.read()
+
+	st.markdown(f"{plain_transcript[:200]}")
+
+if (transcript_youtube_button or transcript_audio_button) and st.session_state.status:
+	update_message()
 
 
 
