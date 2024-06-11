@@ -839,7 +839,7 @@ if st.session_state.status == 'success':
 
 	st.markdown(f"{plain_transcript[:200]}")
 
-if (transcript_youtube_button or transcript_audio_button) and st.session_state.status:
+if st.session_state.status:
 	update_message()
 
 
