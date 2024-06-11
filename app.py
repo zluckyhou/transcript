@@ -410,12 +410,14 @@ def get_video_duration(file_path):
 		print(f"An error occurred: {e}")
 		return None
 
-from pydub import AudioSegment
+# from pydub import AudioSegment
 
+import librosa
 def get_audio_duration(file_path):
-    audio = AudioSegment.from_file(file_path)
-    duration_in_seconds = len(audio) / 1000  # pydub works in milliseconds
-    return duration_in_seconds
+	y, sr = librosa.load(file_path)
+	# 计算音频时长
+	duration = librosa.get_duration(y=y, sr=sr)
+	return duration
 
 
 
