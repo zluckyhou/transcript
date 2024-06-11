@@ -465,6 +465,7 @@ def wrap_transcript_audio(audio_file):
 		srt_file = [file for file in output_files if file.endswith('.srt')][0]
 		txt_file = [file for file in output_files if file.endswith('.txt')][0]
 		st.session_state.srt_file = os.path.join(kg_notebook_output_dir,srt_file)
+		st.session_state.txt_file = os.path.join(kg_notebook_output_dir,txt_file)
 		logger.info(f"srt file: {srt_file}")
 		srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
 		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
@@ -637,6 +638,8 @@ if "txt_file_url" not in st.session_state:
 	st.session_state.txt_file_url = ''
 if "srt_file" not in st.session_state:
 	st.session_state.srt_file = ''
+if "txt_file" not in st.session_state:
+	st.session_state.txt_file = ''
 
 
 if 'user_info' not in st.session_state:
@@ -759,16 +762,20 @@ if img == 'youtube_logo.png':
 	if st.session_state.youtube_video:
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video)
-	if transcript_youtube_button and st.session_state.status:
-		update_message()
+		if transcript_youtube_button and st.session_state.status:
+			update_message()
 
-	if st.session_state.status == 'success':
-		if st.session_state.trans_type == 'youtube_url':
-			with youtube_video_placeholder:
-				st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
-		st.markdown("Transcription completed successfully!")
-		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
+		if st.session_state.status == 'success':
+			if st.session_state.trans_type == 'youtube_url':
+				with youtube_video_placeholder:
+					st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
+			st.markdown("Transcription completed successfully!")
+			st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
+			st.markdown("**Transcription Preview:**")
+			with open(st.session_state.txt_file) as f:
+				plain_transcript = f.read()
 
+			st.markdown(f"{plain_transcript[:200]}")
 
 
 elif img == 'upload_logo.png':
@@ -802,8 +809,12 @@ elif img == 'upload_logo.png':
 		update_message()
 	if st.session_state.status == 'success':
 		st.markdown("Transcription completed successfully!")
-		st.markdown(f"Download [video subtitle]({st.session_state.srt_file_url}) or [Transcript in plain text]({st.session_state.txt_file_url})")
+		st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
+		st.markdown("**Transcription Preview:**")
+		with open(st.session_state.txt_file) as f:
+			plain_transcript = f.read()
 
+		st.markdown(f"{plain_transcript[:200]}")
 
 
 # elif img == 'record_logo.png':
