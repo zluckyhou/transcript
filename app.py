@@ -816,7 +816,7 @@ if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_vid
 empty_file_container = st.container()
 empty_url_container = st.container()
 transcript_youtube_spinner_placeholder = st.empty()
-
+transcript_audiofile_spinner_placeholder = st.empty()
 
 notebook_model_initialize_placeholder = st.empty()
 notebook_update_youtube_url_spinner_placeholder = st.empty()
