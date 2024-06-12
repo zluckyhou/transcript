@@ -827,15 +827,16 @@ notebook_save_output_spinner_placeholder = st.empty()
 
 
 if st.session_state.status == 'success':
-	if st.session_state.trans_type == 'youtube_url':
+	if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_video:
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
 	st.markdown(f"Transcription completed! Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
-	st.markdown("---")
+	# st.markdown("---")
 	# st.markdown("**Transcription Preview:**")
 	with open(st.session_state.txt_file) as f:
 		plain_transcript = f.read()
-	st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
+	st.markdown(f"{plain_transcript[:1000]}")
+	# st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
 
 if st.session_state.status:
 	update_message()
