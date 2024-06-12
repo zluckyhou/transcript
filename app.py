@@ -135,7 +135,7 @@ def is_user_valid(email):
 		return True
 	elif donation_data[1]:
 		return True
-	elif msg_pv < 1:
+	elif msg_pv < int(st.secrets["free_quota"]):
 		return True
 	else:
 		return False
