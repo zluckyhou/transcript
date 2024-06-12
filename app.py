@@ -548,10 +548,8 @@ def transcript_youtube(youtube_url):
 					st.session_state.memo = 'usage limit'
 					st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
-		with login_tip_container:
-			st.session_state.status = 'failed'
-			st.session_state.memo = 'not login'
-			st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
+		st.session_state.status = 'failed'
+		st.session_state.memo = 'not login'
 
 
 def transcript_audio_file(audio_file):
@@ -595,10 +593,9 @@ def transcript_audio_file(audio_file):
 					st.session_state.memo = 'usage limit'
 					st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
-		with login_tip_container:
-			st.session_state.status = 'failed'
-			st.session_state.memo = 'not login'
-			st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
+		st.session_state.status = 'failed'
+		st.session_state.memo = 'not login'
+		
 
 def update_message():
 	msg = {
@@ -806,6 +803,10 @@ elif img == 'upload_logo.png':
 
 st.markdown("---")
 
+if st.session_state.memo == 'not login':
+	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
+
+
 youtube_video_placeholder = st.empty()
 
 if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_video:
@@ -815,7 +816,6 @@ if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_vid
 empty_file_container = st.container()
 empty_url_container = st.container()
 transcript_youtube_spinner_placeholder = st.empty()
-login_tip_container = st.empty()
 
 
 notebook_model_initialize_placeholder = st.empty()
