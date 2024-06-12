@@ -834,7 +834,7 @@ if st.session_state.status == 'success':
 	st.markdown("Transcription completed! ")
 	col1,col2 = st.columns(2)
 	with col1:
-		with open(st.session_state.srt_file) as file
+		with open(st.session_state.srt_file) as file:
 			st.download_button(
 				label="Download subtitle",
 				data=file,
@@ -842,7 +842,7 @@ if st.session_state.status == 'success':
 				mime=mimetypes.guess_type(st.session_state.srt_file)[0]
 				)
 	with col2:
-		with open(st.session_state.txt_file) as file
+		with open(st.session_state.txt_file) as file:
 			st.download_button(
 				label="Download Txt",
 				data=file,
