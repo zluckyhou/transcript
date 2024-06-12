@@ -803,7 +803,7 @@ elif img == 'upload_logo.png':
 
 st.markdown("---")
 
-if st.session_state.memo == 'not login':
+if not st.session_state.user_info:
 	st.warning("Please click the 'Login' button in the sidebar to proceed.", icon=":material/passkey:")
 
 
