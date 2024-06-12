@@ -835,7 +835,8 @@ if st.session_state.status == 'success':
 	# st.markdown("**Transcription Preview:**")
 	with open(st.session_state.txt_file) as f:
 		plain_transcript = f.read()
-	st.markdown(f"{plain_transcript[:1000]}")
+	with st.container(border=True):
+		st.markdown(f"{plain_transcript[:1000]}")
 	# st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
 
 if st.session_state.status:
