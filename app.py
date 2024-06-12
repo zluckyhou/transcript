@@ -760,8 +760,8 @@ if img == 'youtube_logo.png':
 elif img == 'upload_logo.png':
 # if upload_button:
 	st.session_state.trans_type = 'upload_file'
-	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
 	st.markdown("Need audio? You can easily record it using [vocaroo](https://vocaroo.com/).")
+	uploaded_file = st.file_uploader("Upload audio/video", key="audio_file_uploader",type=['mp3','wav','mp4','mpeg','mpga','m4a','webm'])
 	if uploaded_file:
 		logger.debug(f"upload_file:{uploaded_file}")
 		save_uploaded_audio(uploaded_file)
@@ -837,7 +837,7 @@ if st.session_state.status == 'success':
 	with open(st.session_state.txt_file) as f:
 		plain_transcript = f.read()
 
-	st.markdown(f"{plain_transcript[:1000]}")
+	st.text_area(f"{plain_transcript[:1000]}")
 
 if st.session_state.status:
 	update_message()
