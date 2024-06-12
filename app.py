@@ -831,7 +831,7 @@ if st.session_state.status == 'success':
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
 	# st.markdown(f"Transcription completed! Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
-	st.markdown("Transcription completed! ")
+	st.markdown("Transcription completed! If you need to organize or summarize the text, try [ChatGPT-4o](https://chatgpt-4o.streamlit.app/)")
 	# col1,col2 = st.columns(2)
 
 	with open(st.session_state.srt_file) as file:
