@@ -832,9 +832,9 @@ if st.session_state.status == 'success':
 			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
 	st.markdown(f"Transcription completed! Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
 	# st.markdown("---")
-	# st.markdown("**Transcription Preview:**")
 	with open(st.session_state.txt_file) as f:
 		plain_transcript = f.read()
+	st.markdown("**Transcription Preview**")
 	with st.container(border=True):
 		st.markdown(f"{plain_transcript[:1000]}")
 	# st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
