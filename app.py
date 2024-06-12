@@ -833,11 +833,10 @@ if st.session_state.status == 'success':
 	st.markdown("Transcription completed successfully!")
 	st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
 	st.markdown("---")
-	st.markdown("**Transcription Preview:**")
+	# st.markdown("**Transcription Preview:**")
 	with open(st.session_state.txt_file) as f:
 		plain_transcript = f.read()
-
-	st.text_area(f"{plain_transcript[:1000]}")
+	st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}")
 
 if st.session_state.status:
 	update_message()
