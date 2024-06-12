@@ -526,7 +526,7 @@ def transcript_youtube(youtube_url):
 	st.session_state.youtube_url = youtube_url
 	if st.session_state.get('user_info', {}):
 		with transcript_youtube_spinner_placeholder:
-			with st.spinner("Transcription task submited!"):
+			with st.spinner("Transcription in progress. Sit tight!"):
 				user_name = st.session_state.user_info['name']
 				email = st.session_state.user_info['email']
 				if is_user_valid(email):
@@ -564,7 +564,7 @@ def transcript_audio_file(audio_file):
 	logger.info(f"audio file:{audio_file}")
 	if st.session_state.get('user_info', {}):
 		with transcript_audiofile_spinner_placeholder:
-			with st.spinner("Transcription task submited!"):
+			with st.spinner("Transcription in progress. Sit tight!"):
 				email = st.session_state.user_info['email']
 				if is_user_valid(email):
 					try:
@@ -830,8 +830,7 @@ if st.session_state.status == 'success':
 	if st.session_state.trans_type == 'youtube_url':
 		with youtube_video_placeholder:
 			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
-	st.markdown("Transcription completed successfully!")
-	st.markdown(f"Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
+	st.markdown(f"Transcription completed! Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
 	st.markdown("---")
 	# st.markdown("**Transcription Preview:**")
 	with open(st.session_state.txt_file) as f:
