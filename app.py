@@ -866,5 +866,3 @@ if st.session_state.status:
 if st.session_state.status == 'error':
 	st.error("Opps,something went wrong!",icon="🔥")
 
-
-st.video("audio_files_Lys M/Voce_002.m4a")
