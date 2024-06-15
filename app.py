@@ -759,6 +759,9 @@ if img == 'youtube_logo.png':
 		on_click=transcript_youtube,
 		args=[youtube_url],
 		)
+	if transcript_youtube_button and st.session_state.status:
+		update_message()
+
 	# transcript_youtube(youtube_url)
 
 
@@ -783,6 +786,8 @@ elif img == 'upload_logo.png':
 		args=[st.session_state.audio_file],
 		# disabled = not st.session_state.audio_file
 		)
+	if transcript_audio_button and st.session_state.status:
+		update_message()
 
 	# transcript_audio_file(st.session_state.audio_file)
 
@@ -866,10 +871,6 @@ if st.session_state.status == 'success':
 	with st.container(border=True):
 		st.markdown(f"{plain_transcript[:1000]}")
 	# st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
-
-if st.session_state.status:
-	update_message()
-
 
 
 if st.session_state.status == 'error':
