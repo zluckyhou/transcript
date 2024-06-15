@@ -549,7 +549,8 @@ def transcript_youtube(youtube_url):
 					st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
 					st.session_state.status = 'failed'
 					st.session_state.memo = 'usage limit'
-					st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
+					with free_quota_container:
+						st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
 		st.session_state.status = 'failed'
 		st.session_state.memo = 'not login'
@@ -594,7 +595,8 @@ def transcript_audio_file(audio_file):
 					st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
 					st.session_state.status = 'failed'
 					st.session_state.memo = 'usage limit'
-					st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
+					with free_quota_container:
+						st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
 		st.session_state.status = 'failed'
 		st.session_state.memo = 'not login'
@@ -818,6 +820,7 @@ if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_vid
 
 empty_file_container = st.container()
 empty_url_container = st.container()
+free_quota_container = st.container()
 transcript_youtube_spinner_placeholder = st.empty()
 transcript_audiofile_spinner_placeholder = st.empty()
 
