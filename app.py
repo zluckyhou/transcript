@@ -730,11 +730,11 @@ from streamlit_image_select import image_select
 img = image_select(
     label="Select Audio Source",
     images=[
+        "upload_logo.png",
         "youtube_logo.png",
         # "record_logo.png",
-        "upload_logo.png"
     ],
-    captions=["YouTube Link", "Upload File"],
+    captions=["Upload File","YouTube Link"],
 )
 
 # col1, col2, col3 = st.columns(3)
@@ -760,7 +760,6 @@ if img == 'youtube_logo.png':
 		args=[youtube_url],
 		)
 	# transcript_youtube(youtube_url)
-
 
 
 elif img == 'upload_logo.png':
