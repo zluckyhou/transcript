@@ -132,10 +132,13 @@ def is_user_valid(email):
 	msg_pv = user_data[1][0]["msg_pv"] if user_data[1][0]["msg_pv"] else 0
 
 	if email in st.secrets['user_white_list'].split(','):
+		logger.debug("white list user")
 		return True
 	elif donation_data[1]:
+		logger.debug("donation user")
 		return True
 	elif msg_pv < int(st.secrets["free_quota"]):
+		logger.debug("free user less than free quota")
 		return True
 	else:
 		return False
@@ -865,4 +868,5 @@ if st.session_state.status:
 
 if st.session_state.status == 'error':
 	st.error("Opps,something went wrong!",icon="🔥")
+
 
