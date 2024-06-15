@@ -760,6 +760,7 @@ if img == 'youtube_logo.png':
 		args=[youtube_url],
 		)
 	if transcript_youtube_button and st.session_state.status:
+		logger.debug("update message")
 		update_message()
 
 	# transcript_youtube(youtube_url)
@@ -787,6 +788,7 @@ elif img == 'upload_logo.png':
 		# disabled = not st.session_state.audio_file
 		)
 	if transcript_audio_button and st.session_state.status:
+		logger.debug("update message")
 		update_message()
 
 	# transcript_audio_file(st.session_state.audio_file)
