@@ -612,7 +612,8 @@ def update_message():
 	"email":st.session_state.user_info.get('email',''),
 	"status":st.session_state.status,
 	"memo":st.session_state.memo,
-	"audio_file":st.session_state.audio_file
+	"audio_file":st.session_state.audio_file,
+	"model":st.session_state.model
 	}
 
 	supabase_insert_message(table='transcript_messages',message=msg)
@@ -663,6 +664,8 @@ if "audio_file_type" not in st.session_state:
 if "record_audio_data" not in st.session_state:
 	st.session_state.record_audio_data = ''
 
+if "model" not in st.session_state:
+	st.session_state.model = ''
 
 # App title
 st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
@@ -708,6 +711,7 @@ with st.sidebar:
 			st.rerun()  # 重新运行应用以更新状态
 	st.divider()
 	transcript_model = st.selectbox("Transcript model",["medium","large-v2","large-v3"])
+	st.session_state.model = transcript_model
 	st.caption("Medium model is faster, large-v3 offers the best accuracy.")
 # st.sidebar.divider()
 # st.sidebar.markdown('If you have any questions or need assistance, please feel free to contact me via [email](mailto:hou0922@gmail.com)')
