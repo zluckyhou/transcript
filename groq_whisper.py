@@ -106,7 +106,7 @@ def transcript(filename):
 		  model="whisper-large-v3",
 	#	   prompt="Specify context or spelling",  # Optional
 		  response_format="verbose_json",  # Optional
-		  language="en",  # Optional
+		  # language="en",  # Optional
 		  temperature=0.0  # Optional
 		)
 	segments = transcription.segments
