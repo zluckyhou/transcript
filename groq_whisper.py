@@ -17,6 +17,7 @@ def split_audio(audio_file):
 	# 第一步：将音频文件降采样并转换为单声道
 	reduced_audio_file = 'reduced_audio.wav'
 	rm_reduced_audio = subprocess.run(["rm","-rf",reduced_audio_file],check=True)
+	rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
 	reduce_command = [
 		'ffmpeg',
 		'-y',
