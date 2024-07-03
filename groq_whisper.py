@@ -170,9 +170,7 @@ def process_files_concurrently(file_list):
 
 # sorted_split_audio_files = split_audio(audio_file)
 
-def wrap_transcript_audio(audio_file):
-	sorted_split_audio_files = split_audio(audio_file)
-	merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
-	return merged_srt,merged_txt
-
-
+# def wrap_transcript_audio(audio_file):
+# 	sorted_split_audio_files = split_audio(audio_file)
+# 	merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
+# 	return merged_srt,merged_txt
