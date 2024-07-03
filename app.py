@@ -444,6 +444,7 @@ def wrap_download_youtube(youtube_url):
 
 def wrap_transcript_audio(audio_file):
 	sorted_split_audio_files = split_audio(audio_file)
+	logger.info("-----------Transcripting------------")
 	merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
 
 	st.session_state.srt_file = merged_srt
