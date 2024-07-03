@@ -5,7 +5,7 @@ import json
 import re
 import concurrent.futures
 import time
-
+import streamlit as st
 
 
 # 自定义排序键函数，提取文件名中的编号
@@ -95,7 +95,7 @@ def segments_to_srt(segments,output_file,segment_idx):
 
 def transcript(filename):
 
-	client = Groq(api_key=GROQ_API_KEY)
+	client = Groq(api_key=st.secrets['GROQ_API_KEY'])
 	segment_idx = int(get_file_number(filename))
 
 	filename = os.path.join(os.getcwd(),filename)
