@@ -455,6 +455,8 @@ def wrap_transcript_audio(audio_file):
 		with st.spinner("Transcribing..."):
 			# remove wav files first
 			rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
+			rm_srt = subprocess.run(["rm","-rf","part*.srt"],check=True)
+			rm_txt = subprocess.run(["rm","-rf","part*.txt"],check=True)
 			sorted_split_audio_files = split_audio(audio_file)
 			logger.info("-----------Transcribing------------")
 			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
