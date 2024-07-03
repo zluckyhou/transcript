@@ -458,6 +458,7 @@ def wrap_transcript_audio(audio_file):
 			rm_srt = subprocess.run(["rm","-rf","part*.srt"],check=True)
 			rm_txt = subprocess.run(["rm","-rf","part*.txt"],check=True)
 			sorted_split_audio_files = split_audio(audio_file)
+			logger.info(f"split files: {sorted_split_audio_files}")
 			logger.info("-----------Transcribing------------")
 			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
 
