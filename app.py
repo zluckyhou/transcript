@@ -443,17 +443,19 @@ def wrap_download_youtube(youtube_url):
 
 
 def wrap_transcript_audio(audio_file):
-	sorted_split_audio_files = split_audio(audio_file)
-	logger.info("-----------Transcripting------------")
-	merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
+	with transcripting_placeholder:
+		with st.spinner("Transcribing..."):
+			sorted_split_audio_files = split_audio(audio_file)
+			logger.info("-----------Transcribing------------")
+			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
 
-	st.session_state.srt_file = merged_srt
-	st.session_state.txt_file = merged_txt
-	logger.info(f"srt file: {merged_srt}")
-	srt_file_url = upload_file_to_supabase_storage(merged_srt)
-	txt_file_url = upload_file_to_supabase_storage(merged_txt)
-	st.session_state.srt_file_url = srt_file_url
-	st.session_state.txt_file_url = txt_file_url
+			st.session_state.srt_file = merged_srt
+			st.session_state.txt_file = merged_txt
+			logger.info(f"srt file: {merged_srt}")
+			srt_file_url = upload_file_to_supabase_storage(merged_srt)
+			txt_file_url = upload_file_to_supabase_storage(merged_txt)
+			st.session_state.srt_file_url = srt_file_url
+			st.session_state.txt_file_url = txt_file_url
 
 
 def save_uploaded_audio(file_obj):
@@ -820,6 +822,7 @@ notebook_update_youtube_url_spinner_placeholder = st.empty()
 notebook_data_spinner_placeholder = st.empty()
 notebook_pull_spinner_placeholder = st.empty()
 notebook_running_spinner_placeholder = st.empty()
+transcripting_placeholder = st.empty()
 notebook_save_output_spinner_placeholder = st.empty()
 
 
