@@ -12,3 +12,4 @@ streamlit-audiorec
 pydub
 ffmpeg
 librosa
+groq
