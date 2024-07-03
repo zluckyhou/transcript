@@ -750,7 +750,7 @@ if img == 'youtube_logo.png':
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.").strip()
 	transcript_youtube_button = st.button(
-		label="Transcript",
+		label="Transcribe",
 		type="primary",
 		key="transcript_youtube",
 		on_click=transcript_youtube,
@@ -777,7 +777,7 @@ elif img == 'upload_logo.png':
 		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
 	transcript_audio_button = st.button(
-		label="Transcript",
+		label="Transcribe",
 		type="primary",
 		key="transcript_audio",
 		on_click=transcript_audio_file,
