@@ -20,7 +20,7 @@ import streamlit_extras
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.row import row
 from pytube import YouTube
-
+from groq_whisper import split_audio,process_files_concurrently
 
 
 # set logger
@@ -443,37 +443,17 @@ def wrap_download_youtube(youtube_url):
 
 
 def wrap_transcript_audio(audio_file):
-	# use audio-transcript-forapi to transcript
-	dataset = 'zluckyhou/transcript-audio'
-	# youtube_url = "https://www.youtube.com/watch?v=JUSELxessnU&ab_channel=WIRED"
-	kg_notebook_input_data_dir = 'kg_notebook_input_data'		
+	sorted_split_audio_files = split_audio(audio_file)
+	merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
 
-	# move youtube video to transcript-audio dataset
-	update_transcript_audio(dataset,audio_file,kg_notebook_input_data_dir)
+	st.session_state.srt_file = merged_srt
+	st.session_state.txt_file = merged_txt
+	logger.info(f"srt file: {merged_srt}")
+	srt_file_url = upload_file_to_supabase_storage(merged_srt)
+	txt_file_url = upload_file_to_supabase_storage(merged_txt)
+	st.session_state.srt_file_url = srt_file_url
+	st.session_state.txt_file_url = txt_file_url
 
-	# st.markdown(f"Notebook data: {notebook_data}")
-
-	notebook_name = "zluckyhou/faster-whisper-forapi"
-	kg_notebook_dir = 'kg_notebook/'
-	kg_notebook_output_dir = 'kg_notebook_output'
-
-	logger.info("Give some time for notebook to refresh data")
-	time.sleep(5)
-	# run kaggle
-	kg_notebook_run_with_transcript(notebook_name,kg_notebook_dir,kg_notebook_output_dir)
-
-	# display result if notebook running complete
-	if st.session_state.notebook_output:
-		output_files = os.listdir(kg_notebook_output_dir)
-		srt_file = [file for file in output_files if file.endswith('.srt')][0]
-		txt_file = [file for file in output_files if file.endswith('.txt')][0]
-		st.session_state.srt_file = os.path.join(kg_notebook_output_dir,srt_file)
-		st.session_state.txt_file = os.path.join(kg_notebook_output_dir,txt_file)
-		logger.info(f"srt file: {srt_file}")
-		srt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,srt_file))
-		txt_file_url = upload_file_to_supabase_storage(os.path.join(kg_notebook_output_dir,txt_file))
-		st.session_state.srt_file_url = srt_file_url
-		st.session_state.txt_file_url = txt_file_url
 
 def save_uploaded_audio(file_obj):
 	base_name = remove_non_ascii(os.path.basename(file_obj.name)).replace(' ', '_')
