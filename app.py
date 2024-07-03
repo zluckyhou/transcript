@@ -419,7 +419,7 @@ def get_audio_duration(file_path):
     audio = AudioSegment.from_file(file_path)
     duration_seconds = len(audio) / 1000.0
     return duration_seconds
-    
+
 # import librosa
 # def get_audio_duration(file_path):
 # 	y, sr = librosa.load(file_path)
@@ -447,9 +447,14 @@ def wrap_download_youtube(youtube_url):
 	st.session_state.audio_length = audio_length
 
 
+
+
+
 def wrap_transcript_audio(audio_file):
 	with transcripting_placeholder:
 		with st.spinner("Transcribing..."):
+			# remove wav files first
+			rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
 			sorted_split_audio_files = split_audio(audio_file)
 			logger.info("-----------Transcribing------------")
 			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
