@@ -475,12 +475,12 @@ def wrap_transcript_audio(audio_file):
 def save_uploaded_audio(file_obj):
 	base_name = remove_non_ascii(os.path.basename(file_obj.name)).replace(' ', '_')
 	mime_type, _ = mimetypes.guess_type(base_name)
-	output_path = 'audio_files_' + st.session_state.user_info.get('name','unknown')
+	# output_path = 'audio_files_' + st.session_state.user_info.get('name','unknown')
 	# remove directory if exists 
-	rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
-	mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
+	# rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+	# mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
 
-	output_file_path = os.path.join(output_path,base_name)
+	output_file_path = base_name
 	
 	bytes_data = file_obj.getvalue()
 	with open(output_file_path,'wb') as f:
