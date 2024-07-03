@@ -454,6 +454,7 @@ def wrap_transcript_audio(audio_file):
 	with transcripting_placeholder:
 		with st.spinner("Transcribing..."):
 			# remove wav files first
+			logger.info(f"audio file for transcript: {audio_file}")
 			rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
 			rm_srt = subprocess.run(["rm","-rf","part*.srt"],check=True)
 			rm_txt = subprocess.run(["rm","-rf","part*.txt"],check=True)
@@ -488,27 +489,27 @@ def save_uploaded_audio(file_obj):
 	st.session_state.audio_file = output_file_path
 	st.session_state.audio_file_type = mime_type
 
-from st_audiorec import st_audiorec
-def record_and_save_audio():
-	with st.container(border=True):
-		wav_audio_data = st_audiorec()
+# from st_audiorec import st_audiorec
+# def record_and_save_audio():
+# 	with st.container(border=True):
+# 		wav_audio_data = st_audiorec()
 
-		# output_path = 'record_audios'
-		# remove directory if exists 
-		# rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
-		# mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
+# 		# output_path = 'record_audios'
+# 		# remove directory if exists 
+# 		# rm_user_directory = subprocess.run(["rm","-rf",output_path],check=True)
+# 		# mkdir_user_directory = subprocess.run(["mkdir","-p",output_path],check=True)
 
-		# output_file_path = os.path.join(output_path,"record_audio.mp3")
+# 		# output_file_path = os.path.join(output_path,"record_audio.mp3")
 
-		logger.debug(f"record data: {wav_audio_data}")
-		if wav_audio_data:
-			with process_record_spinner_placeholder:
-				with st.spinner("Processing record audio..."):
-					output_file_path = "record_audio.mp3"
-					st.session_state.record_audio_data = wav_audio_data
-					with open(output_file_path,'wb') as f:
-						f.write(st.session_state.record_audio_data)		
-					st.session_state.audio_file = output_file_path
+# 		logger.debug(f"record data: {wav_audio_data}")
+# 		if wav_audio_data:
+# 			with process_record_spinner_placeholder:
+# 				with st.spinner("Processing record audio..."):
+# 					output_file_path = "record_audio.mp3"
+# 					st.session_state.record_audio_data = wav_audio_data
+# 					with open(output_file_path,'wb') as f:
+# 						f.write(st.session_state.record_audio_data)		
+# 					st.session_state.audio_file = output_file_path
 
 
 
