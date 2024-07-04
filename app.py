@@ -762,6 +762,12 @@ if img == 'youtube_logo.png':
 	st.session_state.trans_type = 'youtube_url'
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.").strip()
+	
+	need_translate = st.checkbox("Also translate transcription")
+	if need_translate:
+		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
+		st.session_state.target_language = target_language
+		
 	transcript_youtube_button = st.button(
 		label="Transcribe",
 		type="primary",
