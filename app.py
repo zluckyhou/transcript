@@ -462,13 +462,6 @@ def wrap_transcript_audio(audio_file,target_language):
 			logger.info(f"split files: {sorted_split_audio_files}")
 			logger.info("-----------Transcribing------------")
 			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files,audio_file)
-			if target_language:
-				with translate_placeholder:
-					with st.spinner("Translating..."):
-						translated_srt = wrap_translate(merged_srt,target_language)
-						st.session_state.translated_srt = translated_srt
-						translated_srt_url = upload_file_to_supabase_storage(translated_srt)
-						st.session_state.translated_srt_url = translated_srt_url
 
 			st.session_state.srt_file = merged_srt
 			st.session_state.txt_file = merged_txt
@@ -477,6 +470,13 @@ def wrap_transcript_audio(audio_file,target_language):
 			txt_file_url = upload_file_to_supabase_storage(merged_txt)
 			st.session_state.srt_file_url = srt_file_url
 			st.session_state.txt_file_url = txt_file_url
+	if target_language:
+		with translate_placeholder:
+			with st.spinner("Translating..."):
+				translated_srt = wrap_translate(merged_srt,target_language)
+				st.session_state.translated_srt = translated_srt
+				translated_srt_url = upload_file_to_supabase_storage(translated_srt)
+				st.session_state.translated_srt_url = translated_srt_url
 
 
 def save_uploaded_audio(file_obj):
@@ -769,6 +769,8 @@ if img == 'youtube_logo.png':
 	if need_translate:
 		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 		st.session_state.target_language = target_language
+	else:
+		st.session_state.target_language = ''
 
 	transcript_youtube_button = st.button(
 		label="Transcribe",
@@ -801,6 +803,9 @@ elif img == 'upload_logo.png':
 	if need_translate:
 		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 		st.session_state.target_language = target_language
+	else:
+		st.session_state.target_language = ''
+		
 	transcript_audio_button = st.button(
 		label="Transcribe",
 		type="primary",
