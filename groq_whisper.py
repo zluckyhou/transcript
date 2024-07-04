@@ -37,7 +37,7 @@ def split_audio(audio_file):
     rm_reduced_audio = subprocess.run(["rm","-rf",reduced_audio_file],check=True)
     
     logger.debug(f"list files before split: {os.listdir('.')}")
-    rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
+    rm_wav = subprocess.run(["rm","-rf","part*.wav"],shell=True,check=True)
     logger.debug(f"list files before split,after remove wav files: {os.listdir('.')}")
     
     reduce_command = [
