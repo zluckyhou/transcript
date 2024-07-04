@@ -455,9 +455,9 @@ def wrap_transcript_audio(audio_file,target_language):
 		with st.spinner("Transcribing..."):
 			# remove wav files first
 			logger.info(f"audio file for transcript: {audio_file}")
-			rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
-			rm_srt = subprocess.run(["rm","-rf","part*.srt"],check=True)
-			rm_txt = subprocess.run(["rm","-rf","part*.txt"],check=True)
+			# rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
+			# rm_srt = subprocess.run(["rm","-rf","part*.srt"],check=True)
+			# rm_txt = subprocess.run(["rm","-rf","part*.txt"],check=True)
 			sorted_split_audio_files = split_audio(audio_file)
 			logger.info(f"split files: {sorted_split_audio_files}")
 			logger.info("-----------Transcribing------------")
