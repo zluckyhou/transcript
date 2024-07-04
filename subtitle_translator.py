@@ -1,6 +1,5 @@
 from openai import OpenAI
 import tiktoken
-import tqdm
 import streamlit as st
 
 # string tokens
@@ -33,18 +32,18 @@ def get_completion(prompt,system_prompt="You are a helpful assistant.",model="gp
     )
     return completion.choices[0].message.content
 
-system_prompt = """你是一个专业的翻译家，擅长多语言翻译。你的目标是将提供给你的英文字幕文本，翻译为简体中文。
+system_prompt = """你是一个专业的翻译家，擅长多语言翻译。你的目标是将提供给你的字幕文本，翻译为{language}。
 提供给你的文本可能包含多句话，两句话之间以`\n\n`进行分隔，每句话包含了编号、时间戳、内容。
 
 在翻译时，请严格请按照以下步骤, think step by step：
 step1: 根据`\n\n`分隔符将内容进行拆分，每个句子为一个单位进行翻译；
 step2: 针对每个句子：
- - 识别这句话的编号、时间戳、英文内容；
- - 保留编号、时间戳、英文内容;
- - 将英文内容翻译为简体中文，翻译时请不要僵硬地一句句翻译，而是在理解原文的基础上进行意译，确保翻译的结果流畅、自然，符合中国人的说话习惯；[This is VERY IMPORTANT]
- - 将翻译后的中文内容，附加到这个句子最后。
+ - 识别这句话的编号、时间戳、原始内容；
+ - 保留编号、时间戳、原始内容;
+ - 将原始内容翻译为{language}，翻译时请不要僵硬地一句句翻译，而是在理解原文的基础上进行意译，确保翻译的结果流畅、自然，符合{language}的使用习惯；[This is VERY IMPORTANT]
+ - 将翻译后的内容，附加到这个句子最后。
 
-### Example
+### 下面是一个例子，原始内容为英文，需要翻译为简体中文
 
 Input:
 
@@ -114,14 +113,14 @@ def process_subtitle_chunks(subtitle_chunks, system_prompt, model):
     return results
 
 
-def wrap_translate(srt_file):
+def wrap_translate(srt_file,language,system_prompt=system_prompt):
 
 	with open(srt_file) as f:
 	    subtitle_en = f.read()
 
 	# split text
 	subtitle_en_splits = split_text_by_token_length(subtitle_en.strip(),delimiter='\n\n',chunk_token=1000,model='gpt-4o')
-	subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt, model='gpt-4o')
+	subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt.format(language=language), model='gpt-4o')
 
 
 	multilingo_subtitle = '\n\n'.join(subtitle_multi_splits)
