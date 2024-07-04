@@ -1,6 +1,7 @@
 from openai import OpenAI
 import tiktoken
 import streamlit as st
+import os
 
 # string tokens
 def num_tokens_from_string(string: str, model: str) -> int:
@@ -125,5 +126,8 @@ def wrap_translate(srt_file,language,system_prompt=system_prompt):
 
 	multilingo_subtitle = '\n\n'.join(subtitle_multi_splits)
 
-	with open('subtitle_en_cn.srt','w',encoding='utf-8') as f:
+    multilingo_filename = os.path.splitext(srt_file)[0] + '_multilingo' + os.path.splitext(srt_file)[1]
+	with open(multilingo_filename,'w',encoding='utf-8') as f:
 	    f.write(multilingo_subtitle)
+
+    return multilingo_filename
