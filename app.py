@@ -451,6 +451,12 @@ def wrap_download_youtube(youtube_url):
 
 
 def wrap_transcript_audio(audio_file,target_language):
+	st.session_state.translated_srt = ''
+	st.session_state.translated_srt_url = ''
+	st.session_state.srt_file = ''
+	st.session_state.txt_file = ''
+	st.session_state.srt_file_url = ''
+	st.session_state.txt_file_url = ''
 	with transcripting_placeholder:
 		with st.spinner("Transcribing..."):
 			# remove wav files first
@@ -805,7 +811,7 @@ elif img == 'upload_logo.png':
 		st.session_state.target_language = target_language
 	else:
 		st.session_state.target_language = ''
-		
+
 	transcript_audio_button = st.button(
 		label="Transcribe",
 		type="primary",
