@@ -6,6 +6,24 @@ import re
 import concurrent.futures
 import time
 import streamlit as st
+import logging
+
+
+
+# set logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# clear logger if exists
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+# create a console logger
+console_handler = logging.StreamHandler()
+console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
+
 
 
 # 自定义排序键函数，提取文件名中的编号
@@ -17,7 +35,11 @@ def split_audio(audio_file):
     # 第一步：将音频文件降采样并转换为单声道
     reduced_audio_file = 'reduced_audio.wav'
     rm_reduced_audio = subprocess.run(["rm","-rf",reduced_audio_file],check=True)
+    
+    logger.debug(f"list files before split: {os.listdir('.')}")
     rm_wav = subprocess.run(["rm","-rf","part*.wav"],check=True)
+    logger.debug(f"list files before split,after remove wav files: {os.listdir('.')}")
+    
     reduce_command = [
         'ffmpeg',
         '-y',
