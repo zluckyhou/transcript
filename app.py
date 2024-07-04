@@ -21,7 +21,7 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.row import row
 from pytube import YouTube
 from groq_whisper import split_audio,process_files_concurrently
-
+from subtitle_translator import wrap_translate
 
 # set logger
 logger = logging.getLogger(__name__)
@@ -450,7 +450,7 @@ def wrap_download_youtube(youtube_url):
 
 
 
-def wrap_transcript_audio(audio_file):
+def wrap_transcript_audio(audio_file,target_language):
 	with transcripting_placeholder:
 		with st.spinner("Transcribing..."):
 			# remove wav files first
@@ -461,7 +461,12 @@ def wrap_transcript_audio(audio_file):
 			sorted_split_audio_files = split_audio(audio_file)
 			logger.info(f"split files: {sorted_split_audio_files}")
 			logger.info("-----------Transcribing------------")
-			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files)
+			merged_srt, merged_txt = process_files_concurrently(sorted_split_audio_files,audio_file)
+			if target_language:
+				translated_srt = wrap_translate(merged_srt,target_language)
+				st.session_state.translated_srt = translated_srt
+				translated_srt_url = upload_file_to_supabase_storage(translated_srt)
+				st.session_state.translated_srt_url = translated_srt_url
 
 			st.session_state.srt_file = merged_srt
 			st.session_state.txt_file = merged_txt
@@ -535,7 +540,7 @@ def transcript_youtube(youtube_url):
 						# use youtube-download to download youtube video
 						wrap_download_youtube(youtube_url)
 						# transcript youtube video
-						wrap_transcript_audio(st.session_state.youtube_video)
+						wrap_transcript_audio(st.session_state.youtube_video,st.session_state.target_language)
 						st.session_state.status = 'success'
 						update_data = update_user_msg_pv(email)
 						st.session_state.memo = 'success'
@@ -581,7 +586,7 @@ def transcript_audio_file(audio_file):
 
 						# update_kg_transcript_model(transcript_model)
 						# transcript uploaded audio file
-						wrap_transcript_audio(audio_file)
+						wrap_transcript_audio(audio_file,st.session_state.target_language)
 						st.session_state.status = 'success'
 						update_data = update_user_msg_pv(email)
 						st.session_state.memo = 'success'
@@ -604,6 +609,7 @@ def update_message():
 	"type":st.session_state.trans_type,
 	"url":st.session_state.youtube_url,
 	"srt":st.session_state.srt_file_url,
+	"translated_srt":st.session_state.translated_srt_url,
 	"txt":st.session_state.txt_file_url,
 	"user_name":st.session_state.user_info.get('name',''),
 	"email":st.session_state.user_info.get('email',''),
@@ -660,6 +666,13 @@ if "audio_file_type" not in st.session_state:
 	st.session_state.audio_file_type = ''
 if "record_audio_data" not in st.session_state:
 	st.session_state.record_audio_data = ''
+
+if 'target_language' not in st.session_state:
+	st.session_state.target_language = ''
+if 'translated_srt' not in st.session_state:
+	st.session_state.translated_srt = ''
+if 'translated_srt_url' not in st.session_state:
+	st.session_state.translated_srt_url = ''
 
 # if "model" not in st.session_state:
 # 	st.session_state.model = ''
@@ -776,6 +789,10 @@ elif img == 'upload_logo.png':
 	if st.session_state.audio_file_type.startswith('video'):
 		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
+	need_translate = st.checkbox("Also translate transcription")
+	if need_translate:
+		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
+		st.session_state.target_language = target_language
 	transcript_audio_button = st.button(
 		label="Transcribe",
 		type="primary",
@@ -841,14 +858,17 @@ notebook_save_output_spinner_placeholder = st.empty()
 
 
 if st.session_state.status == 'success':
+	
+	subtitle = st.session_state.translated_srt if st.session_state.translated_srt else st.session_state.srt_file
+
 	if st.session_state.trans_type == 'youtube_url' and st.session_state.youtube_video:
 		with youtube_video_placeholder:
-			st.video(st.session_state.youtube_video,subtitles=st.session_state.srt_file)
+			st.video(st.session_state.youtube_video,subtitles=subtitle)
 	# st.markdown(f"Transcription completed! Download [Audio subtitle]({st.session_state.srt_file_url}) or [Transcription in plain text]({st.session_state.txt_file_url})")
 	st.markdown("Transcription completed! If you need to organize or summarize the text, try [ChatGPT-4o](https://chatgpt-4o.streamlit.app/)")
 	# col1,col2 = st.columns(2)
 
-	with open(st.session_state.srt_file) as file:
+	with open(subtitle) as file:
 		st.download_button(
 			label="Download subtitle srt file",
 			data=file,
@@ -856,20 +876,21 @@ if st.session_state.status == 'success':
 			mime=mimetypes.guess_type(st.session_state.srt_file)[0]
 			)
 
-	with open(st.session_state.txt_file) as file:
-		st.download_button(
-			label="Download transcription in plain text",
-			data=file,
-			file_name="audio_transcription.txt",
-			mime=mimetypes.guess_type(st.session_state.txt_file)[0]
-			)
+	# with open(st.session_state.txt_file) as file:
+	# 	st.download_button(
+	# 		label="Download transcription in plain text",
+	# 		data=file,
+	# 		file_name="audio_transcription.txt",
+	# 		mime=mimetypes.guess_type(st.session_state.txt_file)[0]
+	# 		)
 
 	# st.markdown("---")
-	with open(st.session_state.txt_file) as f:
-		plain_transcript = f.read()
+
 	st.markdown("Preview")
 	with st.container(border=True):
-		st.markdown(f"{plain_transcript[:1000]}")
+		with open(subtitle) as f:
+			subtitle_txt = f.read()
+		st.markdown(f"{subtitle_txt[:1000]}")
 	# st.text_area(label='Transcription Preview',value=f"{plain_transcript[:1000]}",height=500)
 
 
