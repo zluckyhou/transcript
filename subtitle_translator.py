@@ -11,8 +11,8 @@ def num_tokens_from_string(string: str, model: str) -> int:
     return num_tokens
 # Define response function
 def get_completion(prompt,system_prompt="You are a helpful assistant.",model="gpt-3.5-turbo"):
-	openai_api_key = st.secrets['openai_api_key']
-	base_url = st.secrets['burn_base_url']
+    openai_api_key = st.secrets['openai_api_key']
+    base_url = st.secrets['burn_base_url']
 
     client = OpenAI(base_url=base_url, api_key=openai_api_key)
 
@@ -28,8 +28,8 @@ def get_completion(prompt,system_prompt="You are a helpful assistant.",model="gp
         messages=messages,
         temperature=temperature,
         max_tokens=max_tokens,
-    # 	    stream=True,
-    # 	    stream_options={"include_usage":True}
+    #       stream=True,
+    #       stream_options={"include_usage":True}
     )
     return completion.choices[0].message.content
 
@@ -116,18 +116,18 @@ def process_subtitle_chunks(subtitle_chunks, system_prompt, model):
 
 def wrap_translate(srt_file,language,system_prompt=system_prompt):
 
-	with open(srt_file) as f:
-	    subtitle_en = f.read()
+    with open(srt_file) as f:
+        subtitle_en = f.read()
 
-	# split text
-	subtitle_en_splits = split_text_by_token_length(subtitle_en.strip(),delimiter='\n\n',chunk_token=1000,model='gpt-4o')
-	subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt.format(language=language), model='gpt-4o')
+    # split text
+    subtitle_en_splits = split_text_by_token_length(subtitle_en.strip(),delimiter='\n\n',chunk_token=1000,model='gpt-4o')
+    subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt.format(language=language), model='gpt-4o')
 
 
-	multilingo_subtitle = '\n\n'.join(subtitle_multi_splits)
+    multilingo_subtitle = '\n\n'.join(subtitle_multi_splits)
 
     multilingo_filename = os.path.splitext(srt_file)[0] + '_multilingo' + os.path.splitext(srt_file)[1]
-	with open(multilingo_filename,'w',encoding='utf-8') as f:
-	    f.write(multilingo_subtitle)
+    with open(multilingo_filename,'w',encoding='utf-8') as f:
+        f.write(multilingo_subtitle)
 
     return multilingo_filename
