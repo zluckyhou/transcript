@@ -531,6 +531,7 @@ def transcript_youtube(youtube_url):
 	st.session_state.youtube_video = ''
 	st.session_state.srt_file = ''
 	st.session_state.quota_limit = ''
+	st.session_state.audio_file = ''
 	if not youtube_url:
 		with empty_url_container:
 			st.warning("Please paste a YouTube URL")
@@ -571,6 +572,7 @@ def transcript_audio_file(audio_file):
 	st.session_state.srt_file = ''
 	st.session_state.notebook_status = ''
 	st.session_state.quota_limit = ''
+	st.session_state.youtube_url = ''
 	if not audio_file:
 		with empty_file_container:
 			st.warning("Please select a file to upload.")
