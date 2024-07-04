@@ -13,3 +13,4 @@ pydub
 ffmpeg
 librosa
 groq
+tiktoken
