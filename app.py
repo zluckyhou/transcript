@@ -729,6 +729,11 @@ with st.sidebar:
 		if user_info:
 			st.session_state.user_info = user_info  # 保存用户信息到 session
 			st.rerun()  # 重新运行应用以更新状态
+	st.divider()
+	with st.expander("Explore More Apps",icon=":material/apps:"):
+		st.link_button(":owl: ChatGPT-4o", "https://chatgpt-4o.streamlit.app/")
+		st.link_button(":owl: NativeSpeaker", "https://nativespeaker.streamlit.app/")
+
 	# st.divider()
 	# transcript_model = st.selectbox("Transcript model",["medium","large-v2","large-v3"])
 	# st.session_state.model = transcript_model
