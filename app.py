@@ -791,7 +791,7 @@ if img == 'youtube_logo.png':
 	# need_translate = st.checkbox("Also translate transcription")
 	need_translate = st.toggle("Enable tranlate")
 	if need_translate:
-		if is_donation(st.session_state.user_info['email']):
+		if is_donation(st.session_state.user_info.get('email')):
 			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 			st.session_state.target_language = target_language
 		else:
@@ -829,7 +829,7 @@ elif img == 'upload_logo.png':
 	# need_translate = st.checkbox("Also translate transcription")
 	need_translate = st.toggle("Enable tranlate")
 	if need_translate:
-		if is_donation(st.session_state.user_info['email']):
+		if is_donation(st.session_state.user_info.get('email')):
 			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 			st.session_state.target_language = target_language
 		else:
