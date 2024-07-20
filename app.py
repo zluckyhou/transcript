@@ -789,13 +789,13 @@ if img == 'youtube_logo.png':
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.").strip()
 	
 	# need_translate = st.checkbox("Also translate transcription")
-	need_translate = st.toggle("Enable tranlate")
+	need_translate = st.toggle("Activate Translation")
 	if need_translate:
 		if is_donation(st.session_state.user_info.get('email')):
 			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 			st.session_state.target_language = target_language
 		else:
-			st.warning('Donation first to unlock translation',icon='🔥')
+			st.warning('Unlock this feature by supporting me on Ko-fi (link in sidebar)',icon='🔥')
 	else:
 		st.session_state.target_language = ''
 
@@ -827,13 +827,13 @@ elif img == 'upload_logo.png':
 		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
 	# need_translate = st.checkbox("Also translate transcription")
-	need_translate = st.toggle("Enable tranlate")
+	need_translate = st.toggle("Activate Translation")
 	if need_translate:
 		if is_donation(st.session_state.user_info.get('email')):
 			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
 			st.session_state.target_language = target_language
 		else:
-			st.warning('Donation first to unlock translation',icon='🔥')
+			st.warning('Unlock this feature by supporting me on Ko-fi (link in sidebar)',icon='🔥')
 	else:
 		st.session_state.target_language = ''
 
