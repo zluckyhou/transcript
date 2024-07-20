@@ -143,6 +143,16 @@ def is_user_valid(email):
 	else:
 		return False
 
+def is_donation(email):
+	donation_data = supabase_fetch_kofi_by_email(email)
+	if email in st.secrets['user_white_list'].split(','):
+		logger.debug("white list user")
+		return True
+	if donation_data[1]:
+		return True
+	else:
+		return False
+
 
 def save_kg_json():
 
@@ -778,10 +788,14 @@ if img == 'youtube_logo.png':
 
 	youtube_url = st.text_area("Youtube video url",placeholder="Paste your youtube video url here.").strip()
 	
-	need_translate = st.checkbox("Also translate transcription")
+	# need_translate = st.checkbox("Also translate transcription")
+	need_translate = st.toggle("Enable tranlate")
 	if need_translate:
-		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
-		st.session_state.target_language = target_language
+		if is_donation(st.session_state.user_info['email']):
+			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
+			st.session_state.target_language = target_language
+		else:
+			st.warning('Donation first to unlock translation',icon='🔥')
 	else:
 		st.session_state.target_language = ''
 
@@ -812,10 +826,14 @@ elif img == 'upload_logo.png':
 	if st.session_state.audio_file_type.startswith('video'):
 		st.video(st.session_state.audio_file,format=st.session_state.audio_file_type)
 	
-	need_translate = st.checkbox("Also translate transcription")
+	# need_translate = st.checkbox("Also translate transcription")
+	need_translate = st.toggle("Enable tranlate")
 	if need_translate:
-		target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
-		st.session_state.target_language = target_language
+		if is_donation(st.session_state.user_info['email']):
+			target_language = st.selectbox("Translate into",["简体中文","English","Español","Français","Português","日本語","한국어","Русский"])
+			st.session_state.target_language = target_language
+		else:
+			st.warning('Donation first to unlock translation',icon='🔥')
 	else:
 		st.session_state.target_language = ''
 
