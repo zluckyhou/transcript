@@ -122,7 +122,7 @@ def transcript(filename):
 	client = Groq(api_key=st.secrets['GROQ_API_KEY'])
 	segment_idx = int(get_file_number(filename))
 
-	filename = os.path.join(os.getcwd(),filename)
+	# filename = os.path.join(os.getcwd(),filename)
 	
 	with open(filename, "rb") as file:
 		transcription = client.audio.transcriptions.create(
@@ -150,7 +150,7 @@ def process_files_concurrently(file_list,merged_filename):
 	max_workers = 20  # 最大并行任务数
 	delay_between_requests = 4  # 每分钟最多20个请求，计算得每3秒一个请求
 	
-	file_list = [os.path.join(os.getcwd(),file) for file in file_list]
+	# file_list = [os.path.join(os.getcwd(),file) for file in file_list]
 	# 定义存储结果的字典
 	results = {}
 
