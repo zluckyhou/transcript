@@ -562,19 +562,19 @@ def transcript_youtube(youtube_url):
 						wrap_transcript_audio(st.session_state.youtube_video,st.session_state.target_language)
 						st.session_state.status = 'success'
 						update_data = update_user_msg_pv(email)
-						st.session_state.memo = 'success'
+						# st.session_state.memo = 'success'
 					except Exception as e:
 						logger.error(f"Transcript running error: {e}")
 						st.session_state.status = 'error'
 				else:
 					st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
-					st.session_state.status = 'failed'
-					st.session_state.memo = 'usage limit'
+					st.session_state.status = 'usage_limit'
+					# st.session_state.memo = 'usage limit'
 					with free_quota_container:
 						st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
-		st.session_state.status = 'failed'
-		st.session_state.memo = 'not login'
+		st.session_state.status = 'not_login'
+		# st.session_state.memo = 'not login'
 
 
 def transcript_audio_file(audio_file):
@@ -615,13 +615,13 @@ def transcript_audio_file(audio_file):
 						st.session_state.status = 'error'
 				else:
 					st.session_state.quota_limit = "Your free usage has been reached. To continue using the service, please support me by clicking the 'Support Me on Ko-fi' button. Your contribution helps fund further development and unlocks additional usage. Even a small donation makes a big difference - it's like buying me a coffee! Thank you for your support."
-					st.session_state.status = 'failed'
-					st.session_state.memo = 'usage limit'
+					st.session_state.status = 'usage_limit'
+					# st.session_state.memo = 'usage limit'
 					with free_quota_container:
 						st.warning(st.session_state.quota_limit,icon=":material/energy_savings_leaf:")
 	else:
-		st.session_state.status = 'failed'
-		st.session_state.memo = 'not login'
+		st.session_state.status = 'not_login'
+		# st.session_state.memo = 'not login'
 		
 
 def update_message():
@@ -634,7 +634,7 @@ def update_message():
 	"user_name":st.session_state.user_info.get('name',''),
 	"email":st.session_state.user_info.get('email',''),
 	"status":st.session_state.status,
-	"memo":st.session_state.memo,
+	# "memo":st.session_state.memo,
 	"audio_file":st.session_state.audio_file,
 	"model":"whisper-large-v3"
 	}
