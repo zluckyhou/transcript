@@ -120,8 +120,8 @@ def wrap_translate(srt_file,language,system_prompt=system_prompt):
         subtitle_en = f.read()
 
     # split text
-    subtitle_en_splits = split_text_by_token_length(subtitle_en.strip(),delimiter='\n\n',chunk_token=1000,model='gpt-4o')
-    subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt.format(language=language), model='gpt-4o')
+    subtitle_en_splits = split_text_by_token_length(subtitle_en.strip(),delimiter='\n\n',chunk_token=1000,model=st.secrets['chat_model'])
+    subtitle_multi_splits = process_subtitle_chunks(subtitle_en_splits, system_prompt.format(language=language), model=st.secrets['chat_model'])
 
 
     multilingo_subtitle = '\n\n'.join(subtitle_multi_splits)
