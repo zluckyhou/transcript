@@ -705,7 +705,7 @@ st.set_page_config(page_title="WhisperFlow",page_icon=":parrot:")
 with st.sidebar:
 	st.title("🦜 WhisperFlow")
 	about = """
-	The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.
+	The lightning-fast, AI-powered audio and video transcription solution.
 	"""
 	st.markdown(about)
 
@@ -769,7 +769,7 @@ save_kg_json()
 
 
 st.title("Whisper Flow")
-st.markdown(" The lightning-fast, AI-powered audio and video transcription solution that will revolutionize your content management workflow.")
+st.markdown(" The lightning-fast, AI-powered audio and video transcription solution.")
 
 
 from streamlit_image_select import image_select
