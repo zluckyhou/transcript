@@ -709,7 +709,7 @@ with st.sidebar:
 	"""
 	st.markdown(about)
 
-	st.markdown("[![ko-fi](https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/githubbutton_sm_1.svg)](https://ko-fi.com/J3J3YMOKZ)")
+	# st.markdown("[![ko-fi](https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/githubbutton_sm_1.svg)](https://ko-fi.com/J3J3YMOKZ)")
 	
 	from auth0_component import login_button
 	
@@ -739,6 +739,18 @@ with st.sidebar:
 		if user_info:
 			st.session_state.user_info = user_info  # 保存用户信息到 session
 			st.rerun()  # 重新运行应用以更新状态
+
+	# support by ko-fi
+	st.markdown("[![ko-fi](https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/githubbutton_sm_1.svg)](https://ko-fi.com/J3J3YMOKZ)")
+
+	# support by wechat
+	st.markdown("Or support me by wechat")
+	st.image(
+		image="https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/wechat_code.jpg",
+		caption="微信赞赏请留言邮箱，以方便加入白名单",
+		width=200
+		)
+
 	st.divider()
 	with st.expander("Explore More Apps",icon=":material/apps:"):
 		st.link_button(":owl: ChatGPT-4o", "https://chatgpt-4o.streamlit.app/")
