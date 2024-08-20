@@ -744,12 +744,12 @@ with st.sidebar:
 	st.markdown("[![ko-fi](https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/githubbutton_sm_1.svg)](https://ko-fi.com/J3J3YMOKZ)")
 
 	# support by wechat
-	st.markdown("Or support me by wechat")
-	st.image(
-		image="https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/wechat_code.jpg",
-		caption="微信赞赏请留言邮箱，以方便加入白名单",
-		width=200
-		)
+	# st.markdown("Or support me by wechat")
+	# st.image(
+	# 	image="https://wbucijybungpjrszikln.supabase.co/storage/v1/object/public/chatgpt-4o-files/wechat_code.jpg",
+	# 	caption="微信赞赏请留言邮箱，以方便加入白名单",
+	# 	width=200
+	# 	)
 
 	st.divider()
 	with st.expander("Explore More Apps",icon=":material/apps:"):
